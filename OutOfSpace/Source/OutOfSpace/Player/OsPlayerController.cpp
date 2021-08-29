@@ -175,4 +175,10 @@ void AOsPlayerController::Lock()
 void AOsPlayerController::Fire()
 {
 	UE_LOG(LogInput, Log, TEXT("Fire pressed"));
+
+	// TODO: create event and bind in character
+	if (OsPawn)
+	{
+		OsPawn->Fire();
+	}
 }

@@ -4,15 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "OutOfSpaceGameMode.generated.h"
+#include "OsGameMode.generated.h"
 
 UCLASS(minimalapi)
-class AOutOfSpaceGameMode : public AGameModeBase
+class AOsGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
 public:
-	AOutOfSpaceGameMode();
+	AOsGameMode();
+	
+	virtual  void StartPlay() override;
 };
 
 
