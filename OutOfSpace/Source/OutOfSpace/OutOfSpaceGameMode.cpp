@@ -16,7 +16,7 @@ AOutOfSpaceGameMode::AOutOfSpaceGameMode()
 	}
 	else
 	{
-		DefaultPawnClass = AOutOfSpaceCharacter::StaticClass();
+		DefaultPawnClass = AOsCharacter::StaticClass();
 	}
 
 	

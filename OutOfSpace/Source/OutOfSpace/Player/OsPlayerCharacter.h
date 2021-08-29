@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "OutOfSpaceCharacter.h"
+#include "OsCharacter.h"
 #include "OsPlayerCharacter.generated.h"
 
 UCLASS()
-class OUTOFSPACE_API AOsPlayerCharacter : public AOutOfSpaceCharacter
+class OUTOFSPACE_API AOsPlayerCharacter : public AOsCharacter
 {
 	GENERATED_BODY()
 
