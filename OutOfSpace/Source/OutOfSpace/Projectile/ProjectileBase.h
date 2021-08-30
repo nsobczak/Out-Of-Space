@@ -25,7 +25,7 @@ public:
 	// Projectile movement component.
 	UPROPERTY(VisibleAnywhere, Category = Movement)
 	class UProjectileMovementComponent* ProjectileMovementComponent;
-	
+
 	// Projectile mesh
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
 	UStaticMeshComponent* ProjectileMeshComponent;
@@ -33,7 +33,12 @@ public:
 	// Projectile material
 	UPROPERTY(VisibleDefaultsOnly, Category = Movement)
 	UMaterialInstanceDynamic* ProjectileMaterialInstance;
-	
+
 	// Function that initializes the projectile's velocity in the shoot direction.
 	void FireInDirection(const FVector& ShootDirection);
+
+	// Function that is called when the projectile hits something.
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
+	           FVector NormalImpulse, const FHitResult& Hit);
 };

@@ -51,7 +51,7 @@ AProjectileBase::AProjectileBase()
 	{
 		ProjectileMaterialInstance = UMaterialInstanceDynamic::Create(Material.Object, ProjectileMeshComponent);
 	}
-
+	
 	ProjectileMeshComponent->SetMaterial(0, ProjectileMaterialInstance);
 	ProjectileMeshComponent->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
 	ProjectileMeshComponent->SetupAttachment(RootComponent);
@@ -60,7 +60,8 @@ AProjectileBase::AProjectileBase()
 
 	// Set the sphere's collision profile name to "Projectile".
 	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
-	
+	// Event called when component hits something.
+	CollisionComponent->OnComponentHit.AddDynamic(this, &AProjectileBase::OnHit);
 }
 
 void AProjectileBase::BeginPlay()
@@ -76,4 +77,15 @@ void AProjectileBase::Tick(float DeltaTime)
 void AProjectileBase::FireInDirection(const FVector& ShootDirection)
 {
 	ProjectileMovementComponent->Velocity = ShootDirection * ProjectileMovementComponent->InitialSpeed;
+}
+
+void AProjectileBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
+                            FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (OtherActor != this && OtherComponent->IsSimulatingPhysics())
+	{
+		OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);
+	}
+
+	Destroy();
 }

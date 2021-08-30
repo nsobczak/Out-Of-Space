@@ -3,6 +3,7 @@
 #include "OsGameMode.h"
 #include "OutOfSpace/Player/OsPlayerCharacter.h"
 #include "Player/OsPlayerController.h"
+#include "UI/OsHUD.h"
 #include "UObject/ConstructorHelpers.h"
 
 AOsGameMode::AOsGameMode()
@@ -19,8 +20,7 @@ AOsGameMode::AOsGameMode()
 		DefaultPawnClass = AOsCharacter::StaticClass();
 	}
 
-
-	// HUDClass = AHUD::StaticClass();
+	HUDClass = AOsHUD::StaticClass();
 	// GameStateClass = AGameState::StaticClass();
 }
 
