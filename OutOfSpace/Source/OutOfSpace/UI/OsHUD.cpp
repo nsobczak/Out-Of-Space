@@ -19,6 +19,12 @@ AOsHUD::AOsHUD()
 	{
 		HUDWidgetClass = hudClass.Class;
 	}
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> endClass(TEXT("/Game/UI/W_result"));
+	if (endClass.Class != NULL)
+	{
+		EndingWidgetClass = endClass.Class;
+	}
 }
 
 // void AOsHUD::DrawHUD()
@@ -148,24 +154,24 @@ void AOsHUD::ShowWidget(TSubclassOf<UUserWidget> NewWidgetClass, bool showCursor
 	}
 }
 
-void AOsHUD::ShowStartingWidget()
+void AOsHUD::ShowStartingWidget(bool showCursor)
 {
-	ChangeMenuWidget(StartingWidgetClass, false);
+	ChangeMenuWidget(StartingWidgetClass, showCursor);
 }
 
-void AOsHUD::ShowEndingWidget()
+void AOsHUD::ShowEndingWidget(bool showCursor)
 {
-	ChangeMenuWidget(EndingWidgetClass, false);
+	ChangeMenuWidget(EndingWidgetClass, showCursor);
 }
 
-void AOsHUD::ShowPauseWidget()
+void AOsHUD::ShowPauseWidget(bool showCursor)
 {
-	ChangeMenuWidget(PauseWidgetClass, false);
+	ChangeMenuWidget(PauseWidgetClass, showCursor);
 }
 
-void AOsHUD::ShowHUDWidget()
+void AOsHUD::ShowHUDWidget(bool showCursor)
 {
-	ChangeMenuWidget(HUDWidgetClass, false);
+	ChangeMenuWidget(HUDWidgetClass, showCursor);
 }
 
 
@@ -200,4 +206,6 @@ void AOsHUD::HideCurrentWidget(bool showCursor)
 void AOsHUD::HandleGameOver(EGameResult const gameResult)
 {
 	UE_LOG(LogHUD, Log, TEXT("HandleGameOver in hud"));
+
+	ShowEndingWidget();
 }

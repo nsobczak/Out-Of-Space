@@ -31,7 +31,19 @@ public:
 	// // Primary draw call for the HUD.
 	// virtual void DrawHUD() override;
 
-#pragma region widget functions
+protected:
+	/** Called when the game starts. */
+	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void HandleGameOver(EGameResult const gameResult);
+
+private:
+	UPROPERTY()
+	APlayerController* PlayerController;
+
+#pragma region Widget
+public:
 	UFUNCTION(BlueprintCallable, Category = "Widget_Functions")
 	void ShowCursor(bool showCursor);
 
@@ -53,30 +65,24 @@ public:
 	void ShowWidget(TSubclassOf<UUserWidget> NewWidgetClass, bool showCursor = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
-	void ShowHUDWidget();
+	void ShowHUDWidget(bool showCursor = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
-	void ShowStartingWidget();
+	void ShowStartingWidget(bool showCursor = true);
 
 	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
-	void ShowEndingWidget();
+	void ShowEndingWidget(bool showCursor = true);
 
 	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
-	void ShowPauseWidget();
+	void ShowPauseWidget(bool showCursor = true);
 
 	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
 	void HideWidget(UUserWidget* widgetToHide, bool showCursor = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
 	void HideCurrentWidget(bool showCursor = false);
-#pragma endregion
-
 
 protected:
-	/** Called when the game starts. */
-	virtual void BeginPlay() override;
-
-#pragma region Widgets
 	/** The widget class we will use as our menu when the game starts. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widgets")
 	EHudWidget WidgetClassToShow = EHudWidget::FHW_HUD;
@@ -107,14 +113,5 @@ protected:
 	/** The widget instance that we used. (useful for return buttons) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Widgets")
 	TSubclassOf<UUserWidget> OldWidgetClass;
-
 #pragma endregion
-
-	UFUNCTION()
-	void HandleGameOver(EGameResult const gameResult);
-
-	
-private:
-	UPROPERTY()
-	APlayerController* PlayerController;
 };
