@@ -3,8 +3,10 @@
 
 #include "OsPlayerCharacter.h"
 
+#include "OsPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+// #include "OutOfSpace/Character/OsPlayerController.h"
 
 
 // Sets default values
@@ -21,26 +23,47 @@ AOsPlayerCharacter::AOsPlayerCharacter()
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	// Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	FollowCamera->bUsePawnControlRotation = true; // Camera does not rotate relative to arm
 }
 
-// Called when the game starts or when spawned
+void AOsPlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	CurrentController = NewController;
+
+	AOsPlayerController* osPController = Cast<AOsPlayerController>(NewController);
+	if (osPController)
+	{
+		osPController->OnFire.AddUniqueDynamic(this, &AOsPlayerCharacter::Fire);
+	}
+}
+
+void AOsPlayerCharacter::UnPossessed()
+{
+	Super::UnPossessed();
+
+	if (AOsPlayerController* osPController = Cast<AOsPlayerController>(CurrentController))
+	{
+		osPController->OnFire.RemoveDynamic(this, &AOsPlayerCharacter::Fire);
+	}
+
+	// CurrentController = nullptr;
+}
+
 void AOsPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-// Called every frame
 void AOsPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-// Called to bind functionality to input
 void AOsPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
-

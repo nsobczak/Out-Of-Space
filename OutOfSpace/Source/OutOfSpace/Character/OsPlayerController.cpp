@@ -1,4 +1,4 @@
-#include "OutOfSpace/Player/OsPlayerController.h"
+#include "OutOfSpace/Character/OsPlayerController.h"
 
 #include "OsCharacter.h"
 
@@ -68,8 +68,9 @@ void AOsPlayerController::SetupInputComponent()
 
 	InputComponent->BindAction("RollLeft", IE_Released, this, &AOsPlayerController::RollLeft);
 	InputComponent->BindAction("RollRight", IE_Pressed, this, &AOsPlayerController::RollRight);
-	InputComponent->BindAction("Lock", IE_Pressed, this, &AOsPlayerController::Lock);
 	InputComponent->BindAction("Fire", IE_Released, this, &AOsPlayerController::Fire);
+	// InputComponent->BindAction("Lock", IE_Pressed, this, &AOsPlayerController::LockStart);
+	// InputComponent->BindAction("Fire", IE_Released, this, &AOsPlayerController::LockStart);
 }
 
 
@@ -105,6 +106,8 @@ void AOsPlayerController::LookUpAtRate(float Rate)
 
 void AOsPlayerController::MoveForward(float Value)
 {
+	OnMoveForward.Broadcast(Value);
+
 	if (!IsPaused() && Value != 0.0f)
 	{
 		// find out which way is forward
@@ -123,6 +126,8 @@ void AOsPlayerController::MoveForward(float Value)
 
 void AOsPlayerController::MoveRight(float Value)
 {
+	OnMoveRight.Broadcast(Value);
+
 	if (!IsPaused() && Value != 0.0f)
 	{
 		// find out which way is right
@@ -139,10 +144,11 @@ void AOsPlayerController::MoveRight(float Value)
 	}
 }
 
-// actions
+// === actions ===
+
 void AOsPlayerController::Start()
 {
-	UE_LOG(LogInput, Log, TEXT("Start pressed"));
+	OnStart.Broadcast();
 
 	Pause();
 }
@@ -150,35 +156,42 @@ void AOsPlayerController::Start()
 void AOsPlayerController::Accept()
 {
 	UE_LOG(LogInput, Log, TEXT("Accept pressed"));
+
+	OnAccept.Broadcast();
 }
 
 void AOsPlayerController::Back()
 {
 	UE_LOG(LogInput, Log, TEXT("Back pressed"));
+
+	OnBack.Broadcast();
 }
 
 void AOsPlayerController::RollLeft()
 {
 	UE_LOG(LogInput, Log, TEXT("RollLeft pressed"));
+
+	OnRoll.Broadcast(false);
 }
 
 void AOsPlayerController::RollRight()
 {
 	UE_LOG(LogInput, Log, TEXT("RollRight pressed"));
+
+	OnRoll.Broadcast(true);
 }
 
-void AOsPlayerController::Lock()
+void AOsPlayerController::LockStart()
 {
-	UE_LOG(LogInput, Log, TEXT("Lock pressed"));
+	UE_LOG(LogInput, Log, TEXT("LockStart pressed"));
+}
+
+void AOsPlayerController::LockCancel()
+{
+	UE_LOG(LogInput, Log, TEXT("LockCancel pressed"));
 }
 
 void AOsPlayerController::Fire()
 {
-	UE_LOG(LogInput, Log, TEXT("Fire pressed"));
-
-	// TODO: create event and bind in character
-	if (OsPawn)
-	{
-		OsPawn->Fire();
-	}
+	OnFire.Broadcast();
 }

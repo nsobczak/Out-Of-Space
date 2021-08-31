@@ -11,11 +11,9 @@ class OUTOFSPACE_API AOsPlayerCharacter : public AOsCharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AOsPlayerCharacter();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	/** Camera boom positioning the camera behind the character */
@@ -26,8 +24,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	AController* CurrentController;
+
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
@@ -37,4 +36,7 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void UnPossessed() override;
 };

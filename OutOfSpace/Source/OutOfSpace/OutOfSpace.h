@@ -1,7 +1,6 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogOoS, All, All)
 DECLARE_LOG_CATEGORY_EXTERN(LogHUD, All, All)

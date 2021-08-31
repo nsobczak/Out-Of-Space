@@ -1,6 +1,7 @@
 #include "OutOfSpace/Projectile/ProjectileBase.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "OutOfSpace/Character/OsCharacter.h"
 
 AProjectileBase::AProjectileBase()
 {
@@ -51,7 +52,7 @@ AProjectileBase::AProjectileBase()
 	{
 		ProjectileMaterialInstance = UMaterialInstanceDynamic::Create(Material.Object, ProjectileMeshComponent);
 	}
-	
+
 	ProjectileMeshComponent->SetMaterial(0, ProjectileMaterialInstance);
 	ProjectileMeshComponent->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
 	ProjectileMeshComponent->SetupAttachment(RootComponent);
@@ -82,9 +83,15 @@ void AProjectileBase::FireInDirection(const FVector& ShootDirection)
 void AProjectileBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
                             FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor != this && OtherComponent->IsSimulatingPhysics())
+	// if (OtherActor != this && OtherComponent->IsSimulatingPhysics())
+	// {
+	// 	OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);
+	// }
+
+	AOsCharacter* osChar = Cast<AOsCharacter>(OtherActor);
+	if (OtherActor != this && osChar)
 	{
-		OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);
+		osChar->TakeDamage(DamageValue, FDamageEvent(), GetInstigator()->GetController(), GetInstigator());
 	}
 
 	Destroy();

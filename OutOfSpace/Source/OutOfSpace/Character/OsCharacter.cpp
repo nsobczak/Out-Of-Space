@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "OsCharacter.h"
 
 #include "HeadMountedDisplayFunctionLibrary.h"
@@ -7,6 +5,8 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
+#include "OutOfSpace/OutOfSpace.h"
+#include "OutOfSpace/Component/HealthComponent.h"
 #include "OutOfSpace/Projectile/ProjectileBase.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,13 @@ AOsCharacter::AOsCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
 	ProjectileClass = AProjectileBase::StaticClass();
+
+	// muzzle
+	MuzzleComp = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"));
+	MuzzleComp->SetupAttachment(RootComponent);
+	MuzzleComp->SetRelativeLocation(FVector(50.f, 0, 120.f));
+
+	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComp"));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -120,8 +127,6 @@ AOsCharacter::AOsCharacter()
 
 void AOsCharacter::Fire()
 {
-	UE_LOG(LogTemp, Log, TEXT("Firing from charater"));
-
 	// Attempt to fire a projectile.
 	if (ProjectileClass)
 	{
@@ -134,11 +139,12 @@ void AOsCharacter::Fire()
 		MuzzleOffset.Set(100.0f, 0.0f, 0.0f);
 
 		// Transform MuzzleOffset from camera space to world space.
-		FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
+		// FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
+		FVector MuzzleLocation = MuzzleComp->GetComponentLocation();
 
-		// Skew the aim to be slightly upwards.
+		// // Skew the aim to be slightly upwards.
 		FRotator MuzzleRotation = CameraRotation;
-		MuzzleRotation.Pitch += 10.0f;
+		// MuzzleRotation.Pitch += 10.0f;
 
 		UWorld* World = GetWorld();
 		if (World)
@@ -158,4 +164,39 @@ void AOsCharacter::Fire()
 			}
 		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to fire a projectile: ProjectileClass is null"));
+	}
+}
+
+
+float AOsCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+                               AActor* DamageCauser)
+{
+	float damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	if (DamageCauser)
+	{
+		UE_LOG(LogOoS, Log, TEXT("%s damages %s"), *DamageCauser->GetName(), *GetName());
+	}
+
+	if (HealthComp)
+	{
+		HealthComp->AddHealth(-damage);
+		if (HealthComp->IsDead())
+		{
+			Kill();
+		}
+	}
+
+	return damage;
+}
+
+void AOsCharacter::Kill()
+{
+	UE_LOG(LogOoS, Log, TEXT("kill %s"), *GetName());
+
+	OnDeath.Broadcast();
+	
+	Destroy();
 }

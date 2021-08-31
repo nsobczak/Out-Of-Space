@@ -1,8 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "OsGameMode.h"
-#include "OutOfSpace/Player/OsPlayerCharacter.h"
-#include "Player/OsPlayerController.h"
+#include "OutOfSpace/Character/OsPlayerCharacter.h"
+#include "Character/OsPlayerController.h"
 #include "UI/OsHUD.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -10,7 +10,7 @@ AOsGameMode::AOsGameMode()
 {
 	PlayerControllerClass = AOsPlayerController::StaticClass();
 
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Player/Player_BP"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Character/Player_BP"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;

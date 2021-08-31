@@ -3,7 +3,7 @@
 #include "OsWidget.h"
 #include "Engine/Canvas.h"
 #include "OutOfSpace/OutOfSpace.h"
-#include "OutOfSpace/Player/OsPlayerController.h"
+#include "OutOfSpace/Character/OsPlayerController.h"
 
 
 AOsHUD::AOsHUD()
@@ -16,7 +16,6 @@ AOsHUD::AOsHUD()
 	if (hudClass.Class != NULL)
 	{
 		HUDWidgetClass = hudClass.Class;
-		UE_LOG(LogHUD, Log, TEXT("============== hud class set"));
 	}
 }
 
