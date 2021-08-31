@@ -11,6 +11,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBasicActionEvent);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRollEvent, bool, bIsRollRight);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPawnEvent, APawn*, pawn);
+
 
 /**
  * 
@@ -20,7 +22,6 @@ class OUTOFSPACE_API AOsPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-	// TODO: add default constructor
 public:
 	AOsPlayerController(const FObjectInitializer& ObjInitializer);
 
@@ -30,6 +31,12 @@ public:
 
 	virtual void OnPossess(APawn* InPawn) override;
 	// virtual void OnUnPossess() override;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
+	FPawnEvent OnNewPawnPossessed;
+
+	UFUNCTION()
+	void HandleIsGamePlayingUpdated(bool newVal);
 
 	virtual void SetupInputComponent() override;
 
@@ -50,21 +57,30 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
 	FRollEvent OnRoll;
 
+
 protected:
+	class AOsGameMode* OsGameMode;
 	class AOsCharacter* OsPawn;
 
+	UPROPERTY(VisibleInstanceOnly, Category="Inputs")
+	bool bArePlayerActionsAllowed = false;
+	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
 	/** Called for side to side input */
 	void MoveRight(float Value);
 
+	virtual void AddYawInput(float Val) override;
+	
 	/** 
 	* Called via input to turn at a given rate. 
 	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	*/
 	void TurnAtRate(float Rate);
 
+	virtual void AddPitchInput(float Val) override;
+	
 	/**
 	* Called via input to turn look up/down at a given rate. 
 	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate

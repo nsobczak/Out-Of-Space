@@ -26,6 +26,9 @@ protected:
 
 	AController* CurrentController;
 
+	UFUNCTION(Exec)
+	void KillPlayer();
+
 public:
 	virtual void Tick(float DeltaTime) override;
 

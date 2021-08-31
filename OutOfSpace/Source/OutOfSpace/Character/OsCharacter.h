@@ -4,11 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "OutOfSpace/Component/HealthComponent.h"
 #include "OsCharacter.generated.h"
 
 class UHealthComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBasicEvent);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FValueUpdateEvent, int32 const, newValue);
 
 UCLASS(config=Game)
 class AOsCharacter : public ACharacter
@@ -40,12 +43,24 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Events")
 	FBasicEvent OnDeath;
 
+	UFUNCTION(BlueprintPure, Category = Gameplay)
+	FORCEINLINE bool IsDead() const { return HealthComp ? HealthComp->IsDead() : false; };
+
+	UFUNCTION(BlueprintPure, Category = Gameplay)
+	FORCEINLINE int32 GetFoeKilledCount() const { return FoeKilledCount; };
+
+	UFUNCTION(BlueprintCallable, Category = Gameplay)
+	void AddFoeKilledCount(int32 const amount);
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Events")
+	FValueUpdateEvent OnFoeKilledCountUpdated;
+
 protected:
 	// Projectile class to spawn.
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<class AProjectileBase> ProjectileClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	USceneComponent* MuzzleComp;
 
 	// declare point light comp
@@ -53,6 +68,10 @@ protected:
 	UHealthComponent* HealthComp;
 
 	void Kill();
+
+	// Amount of enemy killed
+	UPROPERTY(VisibleInstanceOnly, Category = "Gameplay")
+	int32 FoeKilledCount = 0;
 
 	// /** Called for forwards/backward input */
 	// void MoveForward(float Value);

@@ -2,8 +2,10 @@
 
 #include "OsWidget.h"
 #include "Engine/Canvas.h"
+#include "Kismet/GameplayStatics.h"
 #include "OutOfSpace/OutOfSpace.h"
 #include "OutOfSpace/Character/OsPlayerController.h"
+#include "OutOfSpace/Game/OsGameMode.h"
 
 
 AOsHUD::AOsHUD()
@@ -30,7 +32,7 @@ void AOsHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//hud
+	// hud
 	PlayerController = this->GetOwningPlayerController();
 	if (WidgetClassToShow != EHudWidget::FHW_NONE)
 	{
@@ -51,6 +53,17 @@ void AOsHUD::BeginPlay()
 		default:
 			break;
 		}
+	}
+
+	// bindings
+	AOsGameMode* osGameMode = Cast<AOsGameMode>(UGameplayStatics::GetGameMode(this));
+	if (osGameMode)
+	{
+		osGameMode->OnGameOver.AddUniqueDynamic(this, &AOsHUD::HandleGameOver);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to do binfdings in AOsHUD::BeginPlay()"));
 	}
 }
 
@@ -183,3 +196,8 @@ void AOsHUD::HideCurrentWidget(bool showCursor)
 
 //==============================================================================================
 #pragma endregion
+
+void AOsHUD::HandleGameOver(EGameResult const gameResult)
+{
+	UE_LOG(LogHUD, Log, TEXT("HandleGameOver in hud"));
+}

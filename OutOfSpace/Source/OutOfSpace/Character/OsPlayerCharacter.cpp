@@ -53,6 +53,14 @@ void AOsPlayerCharacter::UnPossessed()
 	// CurrentController = nullptr;
 }
 
+void AOsPlayerCharacter::KillPlayer()
+{
+	if (HealthComp)
+	{
+		TakeDamage(HealthComp->MaxHealth, FDamageEvent(), GetController(), this);
+	}
+}
+
 void AOsPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();

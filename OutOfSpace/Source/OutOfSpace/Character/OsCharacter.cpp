@@ -185,6 +185,10 @@ float AOsCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 		HealthComp->AddHealth(-damage);
 		if (HealthComp->IsDead())
 		{
+			if (AOsCharacter* osCharacter = Cast<AOsCharacter>(DamageCauser))
+			{
+				osCharacter->AddFoeKilledCount(1);
+			}
 			Kill();
 		}
 	}
@@ -197,6 +201,16 @@ void AOsCharacter::Kill()
 	UE_LOG(LogOoS, Log, TEXT("kill %s"), *GetName());
 
 	OnDeath.Broadcast();
-	
-	Destroy();
+
+	if (!IsPlayerControlled())
+	{
+		Destroy();
+	}
 }
+
+void AOsCharacter::AddFoeKilledCount(int32 const amount)
+{
+	FoeKilledCount += amount;
+
+	OnFoeKilledCountUpdated.Broadcast(FoeKilledCount);
+};

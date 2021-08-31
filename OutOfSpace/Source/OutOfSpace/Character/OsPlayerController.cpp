@@ -1,6 +1,9 @@
 #include "OutOfSpace/Character/OsPlayerController.h"
 
 #include "OsCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "OutOfSpace/OutOfSpace.h"
+#include "OutOfSpace/Game/OsGameMode.h"
 
 AOsPlayerController::AOsPlayerController(const FObjectInitializer& ObjInitializer) : Super(
 	ObjInitializer)
@@ -11,9 +14,11 @@ void AOsPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	// WorldSettings = 
-	// GameInstance 
+	OsGameMode = Cast<AOsGameMode>(UGameplayStatics::GetGameMode(this));
+	if (OsGameMode)
+	{
+		OsGameMode->OnIsGamePlayingUpdated.AddUniqueDynamic(this, &AOsPlayerController::HandleIsGamePlayingUpdated);
+	}
 }
 
 void AOsPlayerController::Tick(float DeltaSeconds)
@@ -24,12 +29,19 @@ void AOsPlayerController::Tick(float DeltaSeconds)
 void AOsPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
+
+	if (OsGameMode)
+	{
+		OsGameMode->OnIsGamePlayingUpdated.RemoveDynamic(this, &AOsPlayerController::HandleIsGamePlayingUpdated);
+	}
 }
 
 void AOsPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-	UE_LOG(LogTemp, Log, TEXT("possessed pawn = %s"), InPawn ? *InPawn->GetName() : TEXT("null"));
+	UE_LOG(LogOoS, Log, TEXT("possessed pawn = %s"), InPawn ? *InPawn->GetName() : TEXT("null"));
+
+	OnNewPawnPossessed.Broadcast(InPawn);
 
 	OsPawn = Cast<AOsCharacter>(GetPawn());
 }
@@ -38,6 +50,11 @@ void AOsPlayerController::OnPossess(APawn* InPawn)
 // {
 // 	Super::OnUnPossess();
 // }
+
+void AOsPlayerController::HandleIsGamePlayingUpdated(bool newVal)
+{
+	bArePlayerActionsAllowed = newVal;
+}
 
 void AOsPlayerController::SetupInputComponent()
 {
@@ -84,23 +101,49 @@ void AOsPlayerController::TouchStopped(ETouchIndex::Type FingerIndex, FVector Lo
 	UE_LOG(LogInput, Log, TEXT("TouchStopped"));
 }
 
+void AOsPlayerController::AddYawInput(float Val)
+{
+	if (!IsPaused() && bArePlayerActionsAllowed)
+	{
+		Super::AddYawInput(Val);
+	}
+}
+
 void AOsPlayerController::TurnAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information
-	float Val = Rate * (OsPawn ? OsPawn->BaseTurnRate : DefaultBaseRate) * GetWorld()->GetDeltaSeconds();
-	if (Val != 0.f && IsLocalPlayerController())
+	if (!IsPaused() && bArePlayerActionsAllowed)
 	{
-		AddYawInput(Val);
+		UE_LOG(LogTemp, Log, TEXT("TurnAtRate"));
+
+		// calculate delta for this frame from the rate information
+		float Val = Rate * (OsPawn ? OsPawn->BaseTurnRate : DefaultBaseRate) * GetWorld()->GetDeltaSeconds();
+		if (Val != 0.f && IsLocalPlayerController())
+		{
+			AddYawInput(Val);
+		}
+	}
+}
+
+void AOsPlayerController::AddPitchInput(float Val)
+{
+	if (!IsPaused() && bArePlayerActionsAllowed)
+	{
+		Super::AddPitchInput(Val);
 	}
 }
 
 void AOsPlayerController::LookUpAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information - pitch
-	float Val = Rate * (OsPawn ? OsPawn->BaseLookUpRate : DefaultBaseRate) * GetWorld()->GetDeltaSeconds();
-	if (Val != 0.f && IsLocalPlayerController())
+	if (!IsPaused() && bArePlayerActionsAllowed)
 	{
-		AddPitchInput(Val);
+		UE_LOG(LogTemp, Log, TEXT("LookUpAtRate"));
+
+		// calculate delta for this frame from the rate information - pitch
+		float Val = Rate * (OsPawn ? OsPawn->BaseLookUpRate : DefaultBaseRate) * GetWorld()->GetDeltaSeconds();
+		if (Val != 0.f && IsLocalPlayerController())
+		{
+			AddPitchInput(Val);
+		}
 	}
 }
 
@@ -108,7 +151,7 @@ void AOsPlayerController::MoveForward(float Value)
 {
 	OnMoveForward.Broadcast(Value);
 
-	if (!IsPaused() && Value != 0.0f)
+	if (!IsPaused() && bArePlayerActionsAllowed && Value != 0.0f)
 	{
 		// find out which way is forward
 		const FRotator Rotation = GetControlRotation();
@@ -128,7 +171,7 @@ void AOsPlayerController::MoveRight(float Value)
 {
 	OnMoveRight.Broadcast(Value);
 
-	if (!IsPaused() && Value != 0.0f)
+	if (!IsPaused() && bArePlayerActionsAllowed && Value != 0.0f)
 	{
 		// find out which way is right
 		const FRotator Rotation = GetControlRotation();
@@ -171,27 +214,48 @@ void AOsPlayerController::RollLeft()
 {
 	UE_LOG(LogInput, Log, TEXT("RollLeft pressed"));
 
-	OnRoll.Broadcast(false);
+	if (!IsPaused() && bArePlayerActionsAllowed)
+	{
+		// TODO: implement roll
+		OnRoll.Broadcast(false);
+	}
 }
 
 void AOsPlayerController::RollRight()
 {
 	UE_LOG(LogInput, Log, TEXT("RollRight pressed"));
 
-	OnRoll.Broadcast(true);
+	if (!IsPaused() && bArePlayerActionsAllowed)
+	{
+		// TODO: implement roll
+		OnRoll.Broadcast(true);
+	}
 }
 
 void AOsPlayerController::LockStart()
 {
 	UE_LOG(LogInput, Log, TEXT("LockStart pressed"));
+
+	if (!IsPaused() && bArePlayerActionsAllowed)
+	{
+		// TODO: implement LockStart
+	}
 }
 
 void AOsPlayerController::LockCancel()
 {
 	UE_LOG(LogInput, Log, TEXT("LockCancel pressed"));
+
+	if (!IsPaused() && bArePlayerActionsAllowed)
+	{
+		// TODO: implement LockCancel
+	}
 }
 
 void AOsPlayerController::Fire()
 {
-	OnFire.Broadcast();
+	if (!IsPaused() && bArePlayerActionsAllowed)
+	{
+		OnFire.Broadcast();
+	}
 }

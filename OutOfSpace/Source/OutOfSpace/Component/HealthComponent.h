@@ -13,13 +13,12 @@ class OUTOFSPACE_API UHealthComponent : public UActorComponent
 public:
 	UHealthComponent();
 
-
-protected:
-	virtual void BeginPlay() override;
-
 	// Initial and max health
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float MaxHealth = 100.f;
+
+protected:
+	virtual void BeginPlay() override;
 
 	// Set to MaxHealth on begin play
 	UPROPERTY(VisibleAnywhere, Category = "Health")
@@ -35,7 +34,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Health")
 	FORCEINLINE void ResetHealth() { CurrentHealth = MaxHealth; };
 
-	UFUNCTION(BlueprintCallable, Category="Health")
+	UFUNCTION(Exec, BlueprintCallable, Category="Health")
 	void AddHealth(float healthAmount);
 
 	UFUNCTION(BlueprintPure, Category="Health")

@@ -4,6 +4,8 @@
 #include "GameFramework/HUD.h"
 #include "OsHUD.generated.h"
 
+enum class EGameResult : uint8;
+
 UENUM(BlueprintType)
 enum class EHudWidget : uint8
 {
@@ -108,7 +110,10 @@ protected:
 
 #pragma endregion
 
+	UFUNCTION()
+	void HandleGameOver(EGameResult const gameResult);
 
+	
 private:
 	UPROPERTY()
 	APlayerController* PlayerController;
