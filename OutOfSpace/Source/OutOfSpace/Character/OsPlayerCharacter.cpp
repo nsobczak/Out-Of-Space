@@ -26,6 +26,17 @@ AOsPlayerCharacter::AOsPlayerCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	// Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = true; // Camera does not rotate relative to arm
+
+	if (HealthComp)
+	{
+		HealthComp->MaxHealth = 500.f;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("HealthComp is null in AOsPlayerCharacter::AOsPlayerCharacter"));
+	}
+
+	Faction = EFaction::F_PLAYER;
 }
 
 void AOsPlayerCharacter::PossessedBy(AController* NewController)

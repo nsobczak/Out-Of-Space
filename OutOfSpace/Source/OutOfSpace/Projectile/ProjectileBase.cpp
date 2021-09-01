@@ -47,7 +47,7 @@ AProjectileBase::AProjectileBase()
 		}
 	}
 
-	static ConstructorHelpers::FObjectFinder<UMaterial> Material(TEXT("/Game/Projectile/M_Rock"));
+	static ConstructorHelpers::FObjectFinder<UMaterial> Material(TEXT("/Game/Projectile/M_Tech_Hex_Tile_Pulse"));
 	if (Material.Succeeded())
 	{
 		ProjectileMaterialInstance = UMaterialInstanceDynamic::Create(Material.Object, ProjectileMeshComponent);
@@ -58,7 +58,7 @@ AProjectileBase::AProjectileBase()
 	ProjectileMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ProjectileMeshComponent->SetupAttachment(RootComponent);
 
-	InitialLifeSpan = 4.0f;
+	InitialLifeSpan = 3.0f;
 
 	// Set the sphere's collision profile name to "Projectile".
 	CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
@@ -89,10 +89,13 @@ void AProjectileBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 	// 	OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);
 	// }
 
-	AOsCharacter* osChar = Cast<AOsCharacter>(OtherActor);
-	if (OtherActor != this && osChar && osChar != GetInstigator())
+	// TODO: add team faction correctly to prevent friendly fire
+	AOsCharacter* osCharOther = Cast<AOsCharacter>(OtherActor);
+	AOsCharacter* osCharInstigator = Cast<AOsCharacter>(GetInstigator());
+	if (OtherActor != this && osCharOther && osCharOther != GetInstigator()
+		&& (!osCharInstigator || osCharOther->GetFaction() != osCharInstigator->GetFaction()))
 	{
-		osChar->TakeDamage(DamageValue, FDamageEvent(), GetInstigator()->GetController(), GetInstigator());
+		osCharOther->TakeDamage(DamageValue, FDamageEvent(), GetInstigator()->GetController(), GetInstigator());
 	}
 
 	Destroy();

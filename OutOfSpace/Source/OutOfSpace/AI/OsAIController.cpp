@@ -29,14 +29,18 @@ void AOsAIController::OnPossess(APawn* InPawn)
 		UE_LOG(LogOoS, Error, TEXT("PossessedOsCharacter is null in AOsAIController::OnPossess"));
 		return;
 	}
-	
+
 	if (!BehaviorTree)
 	{
 		UE_LOG(LogOoS, Warning, TEXT("CurrentBehaviorTree is null in ANPCAIController::OnPossess"));
 	}
 
-	RunBehaviorTree(BehaviorTree);
-	// BBKey(this);
+	FTimerHandle timerHandle;
+	FTimerDelegate timerDelegate;
+	// timerDelegate.BindUObject(this, &AOsAIController::RunBehaviorTree, BehaviorTree);
+	timerDelegate.BindUFunction(this, FName("RunBehaviorTree"), BehaviorTree);
+	GetWorldTimerManager().SetTimer(timerHandle, timerDelegate, 1.5f + FMath::RandRange(-0.5f, 0.5f), false);
+	// RunBehaviorTree(BehaviorTree);
 
 	if (bDebug)
 	{

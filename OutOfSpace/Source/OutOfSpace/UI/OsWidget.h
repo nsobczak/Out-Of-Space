@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -14,9 +12,9 @@ class OUTOFSPACE_API UOsWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-	public:
+public:
 	UOsWidget(const FObjectInitializer& ObjectInitializer);
-	
+
 	virtual void NativeConstruct() override;
 
 	// virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;

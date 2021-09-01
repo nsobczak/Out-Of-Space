@@ -5,9 +5,9 @@
 ### gameplay must
 - navigation v1 (need to block on z ok)
 - fire v1 (need to adjust crosshair ok)
-- enemy (exist ok, shooting v1 without ai perception)
+- enemy (exist ok, shooting v1 without ai perception ok)
 - game over conditions (conditions ok, widgets ok)
-- world (material, light ok, add meteorite)
+- world (material, light ok, place foes, add meteorite)
 - intro widget
 - build
 

@@ -128,6 +128,7 @@ AOsCharacter::AOsCharacter()
 void AOsCharacter::Fire()
 {
 	// Attempt to fire a projectile.
+	// TODO: add timer to prevent character from firing too often
 	if (ProjectileClass)
 	{
 		// Get the camera transform.
@@ -159,7 +160,7 @@ void AOsCharacter::Fire()
 			if (Projectile)
 			{
 				// Set the projectile's initial trajectory.
-				FVector LaunchDirection = MuzzleRotation.Vector();
+				FVector LaunchDirection = IsPlayerControlled() ? MuzzleRotation.Vector() : GetActorForwardVector();
 				Projectile->FireInDirection(LaunchDirection);
 			}
 		}

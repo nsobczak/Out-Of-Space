@@ -9,6 +9,16 @@
 
 class UHealthComponent;
 
+UENUM(BlueprintType)
+enum class EFaction : uint8
+{
+	F_PLAYER UMETA(DisplayName = "Player ally"),
+	F_ALIEN UMETA(DisplayName = "Alien"),
+	F_NEUTRAL UMETA(DisplayName = "Neutral"),
+	F_OTHER UMETA(DisplayName = "Other"),
+};
+
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBasicEvent);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FValueUpdateEvent, int32 const, newValue);
@@ -58,6 +68,9 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Events")
 	FValueUpdateEvent OnFoeKilledCountUpdated;
 
+	UFUNCTION(BlueprintPure, Category = "Character")
+	FORCEINLINE EFaction GetFaction() const { return Faction; };
+
 protected:
 	// Projectile class to spawn.
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
@@ -67,7 +80,7 @@ protected:
 	USceneComponent* MuzzleComp;
 
 	// declare point light comp
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Character")
 	UHealthComponent* HealthComp;
 
 	void Kill();
@@ -75,6 +88,9 @@ protected:
 	// Amount of enemy killed
 	UPROPERTY(VisibleInstanceOnly, Category = "Gameplay")
 	int32 FoeKilledCount = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character")
+	EFaction Faction = EFaction::F_NEUTRAL;
 
 	// /** Called for forwards/backward input */
 	// void MoveForward(float Value);

@@ -29,8 +29,11 @@ bool UBTDecorator_IsTargetNear::CalculateRawConditionValue(UBehaviorTreeComponen
 		return false;
 	}
 
-	UObject* player = UGameplayStatics::GetPlayerCharacter(this, 0);
+	AActor* player = UGameplayStatics::GetPlayerCharacter(this, 0);
 	bb->SetValueAsObject(BlackboardKey_Target.SelectedKeyName, player);
 
-	return bb->GetValueAsObject(BlackboardKey_Target.SelectedKeyName) ? true : false;
+	return bb->GetValueAsObject(BlackboardKey_Target.SelectedKeyName)
+		       ? (FVector::DistSquared(player->GetActorLocation(), OwnerComp.GetOwner()->GetActorLocation()) <
+			       FMath::Square(DetectionDistance))
+		       : false;
 }
