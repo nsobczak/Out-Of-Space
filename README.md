@@ -7,10 +7,12 @@ Epic MegaJam
 ## parts
 
 ### gameplay must
-- navigation v1
+- navigation v1 - need to block on z
 - fire v1
 - enemy (exist ok, shooting, moving)
-- game over conditions (conditions ok, widgets)
+- game over conditions (conditions ok, widgets ok)
+- world (material, )
+- build
 
 ### complete
 - gameplay (navigation, aim/lock, fire)
