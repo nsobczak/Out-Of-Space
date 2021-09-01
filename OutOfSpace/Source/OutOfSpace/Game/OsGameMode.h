@@ -38,6 +38,9 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Game")
 	FGameOverEvent OnGameOver;
 
+	UFUNCTION(BlueprintPure, Category="Game")
+	FORCEINLINE EGameResult GetGameResult() const { return GameResult; };
+
 protected:
 	class AOsPlayerController* OsPlayerController;
 	class AOsCharacter* OsCharacter;
@@ -49,4 +52,7 @@ protected:
 	void HandlePlayerFoeKilledCountUpdated(int32 const newKilledCount);
 	UFUNCTION()
 	void HandlePlayerDeath();
+
+	UPROPERTY(VisibleAnywhere, Category="Game")
+	EGameResult GameResult = EGameResult::FGR_OTHER;
 };

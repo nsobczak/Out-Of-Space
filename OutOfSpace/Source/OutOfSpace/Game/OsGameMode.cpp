@@ -61,8 +61,8 @@ void AOsGameMode::HandleNewPlayerPawn(APawn* pawn)
 	OsCharacter = osCharacter;
 	if (osCharacter)
 	{
-		osCharacter->OnFoeKilledCountUpdated.AddUniqueDynamic(this, &AOsGameMode::HandlePlayerFoeKilledCountUpdated);
-		osCharacter->OnDeath.AddUniqueDynamic(this, &AOsGameMode::HandlePlayerDeath);
+		osCharacter->OnFoeKilledCountUpdated.AddDynamic(this, &AOsGameMode::HandlePlayerFoeKilledCountUpdated);
+		osCharacter->OnDeath.AddDynamic(this, &AOsGameMode::HandlePlayerDeath);
 		// TODO: choose where to unbind old player pawn
 	}
 }
@@ -78,7 +78,9 @@ void AOsGameMode::HandlePlayerFoeKilledCountUpdated(int32 const newKilledCount)
 
 		bIsGamePlaying = false;
 		OnIsGamePlayingUpdated.Broadcast(bIsGamePlaying);
-		OnGameOver.Broadcast(EGameResult::FGR_WON);
+
+		GameResult = EGameResult::FGR_WON;
+		OnGameOver.Broadcast(GameResult);
 	}
 }
 
@@ -91,7 +93,9 @@ void AOsGameMode::HandlePlayerDeath()
 
 		bIsGamePlaying = false;
 		OnIsGamePlayingUpdated.Broadcast(bIsGamePlaying);
-		OnGameOver.Broadcast(EGameResult::FGR_LOST);
+
+		GameResult = EGameResult::FGR_LOST;
+		OnGameOver.Broadcast(GameResult);
 	}
 }
 
