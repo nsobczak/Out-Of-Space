@@ -14,7 +14,7 @@ AOsHUD::AOsHUD()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bTickEvenWhenPaused = true;
 
-	static ConstructorHelpers::FClassFinder<UUserWidget> hudClass(TEXT("/Game/UI/W_hud"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> hudClass(TEXT("/Game/UI/Hud/W_hud"));
 	if (hudClass.Class != NULL)
 	{
 		HUDWidgetClass = hudClass.Class;

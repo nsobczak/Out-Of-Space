@@ -47,6 +47,9 @@ public:
 	FORCEINLINE bool IsDead() const { return HealthComp ? HealthComp->IsDead() : false; };
 
 	UFUNCTION(BlueprintPure, Category = Gameplay)
+	FORCEINLINE UHealthComponent* GetHealthComp() const { return HealthComp; };
+
+	UFUNCTION(BlueprintPure, Category = Gameplay)
 	FORCEINLINE int32 GetFoeKilledCount() const { return FoeKilledCount; };
 
 	UFUNCTION(BlueprintCallable, Category = Gameplay)

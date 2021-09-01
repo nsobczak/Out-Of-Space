@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "OutOfSpace/OutOfSpace.h"
 #include "OutOfSpace/Game/OsGameMode.h"
+#include "OutOfSpace/Game/OsWorldSettings.h"
 
 AOsPlayerController::AOsPlayerController(const FObjectInitializer& ObjInitializer) : Super(
 	ObjInitializer)
@@ -19,6 +20,8 @@ void AOsPlayerController::BeginPlay()
 	{
 		OsGameMode->OnIsGamePlayingUpdated.AddUniqueDynamic(this, &AOsPlayerController::HandleIsGamePlayingUpdated);
 	}
+
+	OsWorldSettings = Cast<AOsWorldSettings>(GetWorldSettings());
 }
 
 void AOsPlayerController::Tick(float DeltaSeconds)
@@ -54,6 +57,13 @@ void AOsPlayerController::OnPossess(APawn* InPawn)
 void AOsPlayerController::HandleIsGamePlayingUpdated(bool newVal)
 {
 	bArePlayerActionsAllowed = newVal;
+}
+
+float AOsPlayerController::GetGoalCompletion() const
+{
+	UE_LOG(LogTemp, Log, TEXT("GetFoeKilledCount = %d | TargetFoeAmount = %d"), OsPawn->GetFoeKilledCount(),
+	       OsWorldSettings->TargetFoeAmount);
+	return (float)OsPawn->GetFoeKilledCount() / (float)OsWorldSettings->TargetFoeAmount;
 }
 
 void AOsPlayerController::SetupInputComponent()
@@ -113,8 +123,6 @@ void AOsPlayerController::TurnAtRate(float Rate)
 {
 	if (!IsPaused() && bArePlayerActionsAllowed)
 	{
-		UE_LOG(LogTemp, Log, TEXT("TurnAtRate"));
-
 		// calculate delta for this frame from the rate information
 		float Val = Rate * (OsPawn ? OsPawn->BaseTurnRate : DefaultBaseRate) * GetWorld()->GetDeltaSeconds();
 		if (Val != 0.f && IsLocalPlayerController())
@@ -136,8 +144,6 @@ void AOsPlayerController::LookUpAtRate(float Rate)
 {
 	if (!IsPaused() && bArePlayerActionsAllowed)
 	{
-		UE_LOG(LogTemp, Log, TEXT("LookUpAtRate"));
-
 		// calculate delta for this frame from the rate information - pitch
 		float Val = Rate * (OsPawn ? OsPawn->BaseLookUpRate : DefaultBaseRate) * GetWorld()->GetDeltaSeconds();
 		if (Val != 0.f && IsLocalPlayerController())

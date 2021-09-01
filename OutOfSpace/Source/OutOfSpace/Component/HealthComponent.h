@@ -17,6 +17,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float MaxHealth = 100.f;
 
+	// Get current health and divide by health max
+	UFUNCTION(BlueprintPure, Category = Gameplay)
+	FORCEINLINE float GetHealthRatio() const { return GetCurrentHealth() / MaxHealth; };
+
 protected:
 	virtual void BeginPlay() override;
 

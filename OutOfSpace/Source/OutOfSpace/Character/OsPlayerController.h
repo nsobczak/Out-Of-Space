@@ -57,14 +57,18 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
 	FRollEvent OnRoll;
 
+	UFUNCTION(BlueprintPure, Category="game")
+	FORCEINLINE float GetGoalCompletion() const;
+
 
 protected:
 	class AOsGameMode* OsGameMode;
 	class AOsCharacter* OsPawn;
+	class AOsWorldSettings* OsWorldSettings;
 
 	UPROPERTY(VisibleInstanceOnly, Category="Inputs")
 	bool bArePlayerActionsAllowed = false;
-	
+
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
@@ -72,7 +76,7 @@ protected:
 	void MoveRight(float Value);
 
 	virtual void AddYawInput(float Val) override;
-	
+
 	/** 
 	* Called via input to turn at a given rate. 
 	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
@@ -80,7 +84,7 @@ protected:
 	void TurnAtRate(float Rate);
 
 	virtual void AddPitchInput(float Val) override;
-	
+
 	/**
 	* Called via input to turn look up/down at a given rate. 
 	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate

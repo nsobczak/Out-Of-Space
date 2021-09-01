@@ -55,6 +55,7 @@ AProjectileBase::AProjectileBase()
 
 	ProjectileMeshComponent->SetMaterial(0, ProjectileMaterialInstance);
 	ProjectileMeshComponent->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
+	ProjectileMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ProjectileMeshComponent->SetupAttachment(RootComponent);
 
 	InitialLifeSpan = 4.0f;
@@ -89,7 +90,7 @@ void AProjectileBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 	// }
 
 	AOsCharacter* osChar = Cast<AOsCharacter>(OtherActor);
-	if (OtherActor != this && osChar)
+	if (OtherActor != this && osChar && osChar != GetInstigator())
 	{
 		osChar->TakeDamage(DamageValue, FDamageEvent(), GetInstigator()->GetController(), GetInstigator());
 	}
