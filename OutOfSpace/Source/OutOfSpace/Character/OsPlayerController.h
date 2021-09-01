@@ -58,7 +58,7 @@ public:
 	FRollEvent OnRoll;
 
 	UFUNCTION(BlueprintPure, Category="game")
-	FORCEINLINE float GetGoalCompletion() const;
+	float GetGoalCompletion() const;
 
 
 protected:
@@ -110,5 +110,5 @@ protected:
 
 private:
 	// used for LookUpAtRate and turn 
-	float DefaultBaseRate = 45.f;
+	float DefaultBaseRate = 35.f;
 };
