@@ -54,6 +54,15 @@ void AOsPlayerController::OnPossess(APawn* InPawn)
 // 	Super::OnUnPossess();
 // }
 
+void AOsPlayerController::Pause()
+{
+	if (OsGameMode && OsGameMode->bIsGamePlaying)
+	{
+		Super::Pause();
+		OnPause.Broadcast(IsPaused());
+	}
+}
+
 void AOsPlayerController::HandleIsGamePlayingUpdated(bool newVal)
 {
 	bArePlayerActionsAllowed = newVal;

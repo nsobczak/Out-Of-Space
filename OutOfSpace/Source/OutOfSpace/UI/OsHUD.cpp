@@ -25,6 +25,12 @@ AOsHUD::AOsHUD()
 	{
 		EndingWidgetClass = endClass.Class;
 	}
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> pauseClass(TEXT("/Game/UI/W_Pause"));
+	if (pauseClass.Class != NULL)
+	{
+		PauseWidgetClass = pauseClass.Class;
+	}
 }
 
 // void AOsHUD::DrawHUD()
@@ -38,8 +44,9 @@ void AOsHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// hud
 	PlayerController = this->GetOwningPlayerController();
+
+	// hud
 	if (WidgetClassToShow != EHudWidget::FHW_NONE)
 	{
 		switch (WidgetClassToShow)
@@ -62,14 +69,18 @@ void AOsHUD::BeginPlay()
 	}
 
 	// bindings
-	AOsGameMode* osGameMode = Cast<AOsGameMode>(UGameplayStatics::GetGameMode(this));
-	if (osGameMode)
+	if (AOsGameMode* osGameMode = Cast<AOsGameMode>(UGameplayStatics::GetGameMode(this)))
 	{
 		osGameMode->OnGameOver.AddUniqueDynamic(this, &AOsHUD::HandleGameOver);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Failed to do binfdings in AOsHUD::BeginPlay()"));
+	}
+
+	if (AOsPlayerController* osPlayerController = Cast<AOsPlayerController>(PlayerController))
+	{
+		osPlayerController->OnPause.AddUniqueDynamic(this, &AOsHUD::HandleGamePaused);
 	}
 }
 
@@ -205,7 +216,17 @@ void AOsHUD::HideCurrentWidget(bool showCursor)
 
 void AOsHUD::HandleGameOver(EGameResult const gameResult)
 {
-	UE_LOG(LogHUD, Log, TEXT("HandleGameOver in hud"));
-
 	ShowEndingWidget();
+}
+
+void AOsHUD::HandleGamePaused(bool const bIsPaused)
+{
+	if (bIsPaused)
+	{
+		ShowPauseWidget();
+	}
+	else
+	{
+		ChangeMenuWidget(OldWidgetClass, false);
+	}
 }

@@ -9,6 +9,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMoveEvent, float, value);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBasicActionEvent);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPauseEvent, bool, bIsPaused);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRollEvent, bool, bIsRollRight);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPawnEvent, APawn*, pawn);
@@ -32,6 +34,8 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 	// virtual void OnUnPossess() override;
 
+	virtual void Pause() override;
+
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
 	FPawnEvent OnNewPawnPossessed;
 
@@ -52,8 +56,10 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
 	FBasicActionEvent OnBack;
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
-	FBasicActionEvent OnFire;
+	FPauseEvent OnPause;
 
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
+	FBasicActionEvent OnFire;
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
 	FRollEvent OnRoll;
 

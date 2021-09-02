@@ -38,5 +38,5 @@ protected:
 
 	// TODO: move DetectionDistance into character or controller
 	UPROPERTY(VisibleAnywhere)
-	float DetectionDistance = 8000.f;
+	float DetectionDistance = 8500.f;
 };

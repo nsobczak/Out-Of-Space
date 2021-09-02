@@ -38,6 +38,9 @@ protected:
 	UFUNCTION()
 	void HandleGameOver(EGameResult const gameResult);
 
+	UFUNCTION()
+	void HandleGamePaused(bool const bIsPaused);
+
 private:
 	UPROPERTY()
 	APlayerController* PlayerController;

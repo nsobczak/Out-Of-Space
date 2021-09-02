@@ -21,3 +21,9 @@
 - story lines
 
 ## Ideas
+
+## description
+
+You are in space and enemies try to destroy you, you have to make it out! 
+
+Controls
