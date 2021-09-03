@@ -18,8 +18,6 @@ void UBTDecorator_IsTargetNear::InitializeFromAsset(UBehaviorTree& Asset)
 
 bool UBTDecorator_IsTargetNear::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-	UE_LOG(LogOoS, Log, TEXT("UBTDecorator_IsTargetNear::CalculateRawConditionValue"));
-
 	UBlackboardComponent* bb = OwnerComp.GetBlackboardComponent();
 	if (!bb)
 	{

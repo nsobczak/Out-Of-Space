@@ -70,8 +70,6 @@ void AOsPlayerController::HandleIsGamePlayingUpdated(bool newVal)
 
 float AOsPlayerController::GetGoalCompletion() const
 {
-	UE_LOG(LogTemp, Log, TEXT("GetFoeKilledCount = %d | TargetFoeAmount = %d"), OsPawn->GetFoeKilledCount(),
-	       OsWorldSettings->TargetFoeAmount);
 	return (float)OsPawn->GetFoeKilledCount() / (float)OsWorldSettings->TargetFoeAmount;
 }
 

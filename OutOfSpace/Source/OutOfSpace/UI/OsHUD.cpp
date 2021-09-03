@@ -14,19 +14,19 @@ AOsHUD::AOsHUD()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bTickEvenWhenPaused = true;
 
-	static ConstructorHelpers::FClassFinder<UUserWidget> hudClass(TEXT("/Game/UI/Hud/W_hud"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> hudClass(TEXT("/Game/UI/Hud/W_hud_BP"));
 	if (hudClass.Class != NULL)
 	{
 		HUDWidgetClass = hudClass.Class;
 	}
 
-	static ConstructorHelpers::FClassFinder<UUserWidget> endClass(TEXT("/Game/UI/W_result"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> endClass(TEXT("/Game/UI/W_result_BP"));
 	if (endClass.Class != NULL)
 	{
 		EndingWidgetClass = endClass.Class;
 	}
 
-	static ConstructorHelpers::FClassFinder<UUserWidget> pauseClass(TEXT("/Game/UI/W_Pause"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> pauseClass(TEXT("/Game/UI/W_Pause_BP"));
 	if (pauseClass.Class != NULL)
 	{
 		PauseWidgetClass = pauseClass.Class;
@@ -39,6 +39,13 @@ AOsHUD::AOsHUD()
 //
 // }
 
+FString AOsHUD::GetProjectVersion()
+{
+	FString ProjectVersion;
+	GConfig->GetString(TEXT("/Script/EngineSettings.GeneralProjectSettings"),
+	                   TEXT("ProjectVersion"), ProjectVersion, GGameIni);
+	return ProjectVersion;
+}
 
 void AOsHUD::BeginPlay()
 {

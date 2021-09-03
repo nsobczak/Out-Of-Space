@@ -30,6 +30,9 @@ class OUTOFSPACE_API AOsHUD : public AHUD
 public:
 	// // Primary draw call for the HUD.
 	// virtual void DrawHUD() override;
+	
+	UFUNCTION(BlueprintPure, Category = "HUD")
+	FString GetProjectVersion();
 
 protected:
 	/** Called when the game starts. */
