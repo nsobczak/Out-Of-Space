@@ -29,8 +29,8 @@ protected:
 	float CurrentHealth = 1.f;
 
 public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
+	// virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+	//                            FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintPure, Category="Health")
 	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; };

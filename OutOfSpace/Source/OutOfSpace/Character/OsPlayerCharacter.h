@@ -1,6 +1,4 @@
-﻿// 
-
-#pragma once
+﻿#pragma once
 
 #include "OsCharacter.h"
 #include "OsPlayerCharacter.generated.h"
@@ -12,6 +10,25 @@ class OUTOFSPACE_API AOsPlayerCharacter : public AOsCharacter
 
 public:
 	AOsPlayerCharacter();
+
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	/** Returns CameraBoom subobject **/
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	/** Returns FollowCamera subobject **/
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void UnPossessed() override;
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+		AActor* DamageCauser) override;
+
+	UFUNCTION(BlueprintPure, Category="Projectile")
+	FORCEINLINE FVector GetCrosshairWorldLocation() const { return CrosshairLocComp->GetComponentLocation(); }
 
 protected:
 	virtual void BeginPlay() override;
@@ -26,20 +43,22 @@ protected:
 
 	AController* CurrentController;
 
+	// Aiming point to get location of crosshair
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	USceneComponent* CrosshairLocComp;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	float AimingPointDist = 5000.f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Character")
+	class UStaminaComponent* StaminaComp;
+
 	UFUNCTION(Exec)
 	void KillPlayer();
 
-public:
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(VisibleInstanceOnly, Category = "Cheat")
+	bool bIsInvulnerable = false;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
-	virtual void PossessedBy(AController* NewController) override;
-	virtual void UnPossessed() override;
+	UFUNCTION(Exec, BlueprintCallable, Category = "Cheat")
+	void ToggleInvulnerabilityForPlayer() { bIsInvulnerable = ! bIsInvulnerable; }
 };

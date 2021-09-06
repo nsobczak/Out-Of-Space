@@ -1,18 +1,16 @@
-﻿// 
+﻿#include "OsPlayerCharacter.h"
 
-
-#include "OsPlayerCharacter.h"
-
+#include "DrawDebugHelpers.h"
 #include "OsPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-// #include "OutOfSpace/Character/OsPlayerController.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "OutOfSpace/OutOfSpace.h"
+#include "OutOfSpace/Component/StaminaComponent.h"
 
 
-// Sets default values
 AOsPlayerCharacter::AOsPlayerCharacter()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
@@ -27,6 +25,11 @@ AOsPlayerCharacter::AOsPlayerCharacter()
 	// Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = true; // Camera does not rotate relative to arm
 
+	CrosshairLocComp = CreateDefaultSubobject<USceneComponent>(TEXT("CrosshairLocation"));
+	CrosshairLocComp->SetupAttachment(RootComponent);
+	CrosshairLocComp->
+		SetRelativeLocation(MuzzleComp->GetRelativeLocation() + AimingPointDist * GetActorForwardVector());
+
 	if (HealthComp)
 	{
 		HealthComp->MaxHealth = 500.f;
@@ -35,6 +38,8 @@ AOsPlayerCharacter::AOsPlayerCharacter()
 	{
 		UE_LOG(LogTemp, Error, TEXT("HealthComp is null in AOsPlayerCharacter::AOsPlayerCharacter"));
 	}
+
+	StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComp"));
 
 	Faction = EFaction::F_PLAYER;
 }
@@ -85,4 +90,10 @@ void AOsPlayerCharacter::Tick(float DeltaTime)
 void AOsPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+float AOsPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	return bIsInvulnerable ? 0 : Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }

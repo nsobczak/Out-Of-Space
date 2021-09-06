@@ -15,6 +15,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRollEvent, bool, bIsRollRight);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPawnEvent, APawn*, pawn);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCrosshairEvent, bool, bIsLocked);
+
 
 /**
  * 
@@ -66,11 +68,25 @@ public:
 	UFUNCTION(BlueprintPure, Category="game")
 	float GetGoalCompletion() const;
 
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Projectile")
+	FCrosshairEvent OnCrosshairLock;
+	
+	UFUNCTION(BlueprintPure, Category="Projectile")
+	FORCEINLINE FVector2D GetCrosshairScreenLocation() const { return CrosshairScreenLocation; };
+
 
 protected:
 	class AOsGameMode* OsGameMode;
-	class AOsCharacter* OsPawn;
+	class AOsPlayerCharacter* OsPlayerCharacter;
 	class AOsWorldSettings* OsWorldSettings;
+
+	FVector2D CrosshairScreenLocation;
+
+	UFUNCTION(BlueprintPure, Category="Projectile")
+	bool UpdateCrosshairScreenLocation(FVector2D& screenLocation) const;
+
+	UPROPERTY(EditDefaultsOnly, Category="Projectile")
+	float ScreenDistanceDetectionThreshold = 400.f;
 
 	UPROPERTY(VisibleInstanceOnly, Category="Inputs")
 	bool bArePlayerActionsAllowed = false;

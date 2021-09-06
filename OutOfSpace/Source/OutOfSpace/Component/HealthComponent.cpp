@@ -2,9 +2,7 @@
 
 UHealthComponent::UHealthComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
@@ -16,13 +14,13 @@ void UHealthComponent::BeginPlay()
 }
 
 
-void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                     FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
+// void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+//                                      FActorComponentTickFunction* ThisTickFunction)
+// {
+// 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+//
+// 	// ...
+// }
 
 void UHealthComponent::AddHealth(float healthAmount)
 {

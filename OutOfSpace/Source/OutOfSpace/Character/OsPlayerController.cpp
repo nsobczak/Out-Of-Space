@@ -1,6 +1,8 @@
 #include "OutOfSpace/Character/OsPlayerController.h"
 
 #include "OsCharacter.h"
+#include "OsPlayerCharacter.h"
+#include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "OutOfSpace/OutOfSpace.h"
 #include "OutOfSpace/Game/OsGameMode.h"
@@ -24,9 +26,74 @@ void AOsPlayerController::BeginPlay()
 	OsWorldSettings = Cast<AOsWorldSettings>(GetWorldSettings());
 }
 
+bool AOsPlayerController::UpdateCrosshairScreenLocation(FVector2D& screenLocation) const
+{
+	int32 ScreenWidth = 0, ScreenHeight = 0;
+	GetViewportSize(ScreenWidth, ScreenHeight);
+
+	if (ProjectWorldLocationToScreen(OsPlayerCharacter->GetCrosshairWorldLocation(), screenLocation, false))
+	{
+		UE_LOG(LogOoS, Log, TEXT("crosshair screenLocation = %s | viewport size = (%d, %d)"),
+			*screenLocation.ToString(), ScreenWidth, ScreenHeight);
+	}
+
+	int32 ScreenX = (int32)screenLocation.X;
+	int32 ScreenY = (int32)screenLocation.Y;
+
+	return ScreenX >= 0 && ScreenY >= 0 && ScreenX < ScreenWidth && ScreenY < ScreenHeight;
+}
+
 void AOsPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	// Handle screen calculations
+	CrosshairScreenLocation = UpdateCrosshairScreenLocation(CrosshairScreenLocation) ? CrosshairScreenLocation : FVector2D::ZeroVector;
+	
+	AOsPlayerCharacter* osPlayerChar = Cast<AOsPlayerCharacter>(OsPlayerCharacter);
+	if (osPlayerChar)
+	{
+		float lengthDetection = 14000.f;
+		float sphereRadius = 1000.f;
+		EObjectTypeQuery objectTypeQuery = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
+		TArray<TEnumAsByte<EObjectTypeQuery>> objectTypes = TArray<TEnumAsByte<EObjectTypeQuery>>{objectTypeQuery};
+		TArray<AActor*> actorToIgnore = TArray<AActor*>{osPlayerChar};
+		TArray<FHitResult> outHits;
+		UKismetSystemLibrary::SphereTraceMultiForObjects(this, osPlayerChar->GetFollowCamera()->GetComponentLocation(),
+			osPlayerChar->GetFollowCamera()->GetComponentLocation() + lengthDetection * osPlayerChar->GetFollowCamera()
+			->GetForwardVector(), sphereRadius, objectTypes, false, actorToIgnore, EDrawDebugTrace::ForOneFrame,
+			outHits, true, FLinearColor::Blue, FLinearColor::Red, 1.f);
+
+		// DrawDebugLine(GetWorld(), osPlayerChar->GetFollowCamera()->GetComponentLocation(),
+		// 	osPlayerChar->GetFollowCamera()->GetComponentLocation() + lengthDetection * osPlayerChar->GetFollowCamera()
+		// 	->GetForwardVector(), FColor::Green, false, 0, 0, 3.f);
+
+		if (outHits.Num() > 0)
+		{
+			UE_LOG(LogOoS, Log, TEXT("outHits.Num() = %d"), outHits.Num());
+		}
+
+		for (int i = 0; i < outHits.Num(); ++i)
+		{
+			AOsCharacter* currentOsChar = Cast<AOsCharacter>(outHits[i].GetActor());
+			if (currentOsChar)
+			{
+				FVector2D characterScreenLocation;
+				if (ProjectWorldLocationToScreen(currentOsChar->GetActorLocation(), characterScreenLocation, true))
+				{
+					UE_LOG(LogOoS, Log, TEXT("screenLocation = %s"), *characterScreenLocation.ToString());
+					
+					// TODO: get crosshair screen position and compare dist to decide if we should lock
+
+					bool bIsLocked = FVector2D::DistSquared(CrosshairScreenLocation, characterScreenLocation) <
+						FMath::Square(ScreenDistanceDetectionThreshold);
+					// TODO: boradcast only if a change happened
+					OnCrosshairLock.Broadcast(bIsLocked);
+					// UE_LOG(LogOoS, Log, TEXT("dist <"));
+				}
+			}
+		}
+	}
 }
 
 void AOsPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -46,7 +113,7 @@ void AOsPlayerController::OnPossess(APawn* InPawn)
 
 	OnNewPawnPossessed.Broadcast(InPawn);
 
-	OsPawn = Cast<AOsCharacter>(GetPawn());
+	OsPlayerCharacter = Cast<AOsPlayerCharacter>(GetPawn());
 }
 
 // void AOsPlayerController::OnUnPossess()
@@ -70,8 +137,11 @@ void AOsPlayerController::HandleIsGamePlayingUpdated(bool newVal)
 
 float AOsPlayerController::GetGoalCompletion() const
 {
-	return (float)OsPawn->GetFoeKilledCount() / (float)OsWorldSettings->TargetFoeAmount;
+	return (float)OsPlayerCharacter->GetFoeKilledCount() / (float)OsWorldSettings->TargetFoeAmount;
 }
+
+#pragma region Inputs
+//______________________________________________________________
 
 void AOsPlayerController::SetupInputComponent()
 {
@@ -131,7 +201,8 @@ void AOsPlayerController::TurnAtRate(float Rate)
 	if (!IsPaused() && bArePlayerActionsAllowed)
 	{
 		// calculate delta for this frame from the rate information
-		float Val = Rate * (OsPawn ? OsPawn->BaseTurnRate : DefaultBaseRate) * GetWorld()->GetDeltaSeconds();
+		float Val = Rate * (OsPlayerCharacter ? OsPlayerCharacter->BaseTurnRate : DefaultBaseRate) * GetWorld()->
+			GetDeltaSeconds();
 		if (Val != 0.f && IsLocalPlayerController())
 		{
 			AddYawInput(Val);
@@ -152,7 +223,8 @@ void AOsPlayerController::LookUpAtRate(float Rate)
 	if (!IsPaused() && bArePlayerActionsAllowed)
 	{
 		// calculate delta for this frame from the rate information - pitch
-		float Val = Rate * (OsPawn ? OsPawn->BaseLookUpRate : DefaultBaseRate) * GetWorld()->GetDeltaSeconds();
+		float Val = Rate * (OsPlayerCharacter ? OsPlayerCharacter->BaseLookUpRate : DefaultBaseRate) * GetWorld()->
+			GetDeltaSeconds();
 		if (Val != 0.f && IsLocalPlayerController())
 		{
 			AddPitchInput(Val);
@@ -272,3 +344,6 @@ void AOsPlayerController::Fire()
 		OnFire.Broadcast();
 	}
 }
+
+//____________________________________________________________________________
+#pragma endregion

@@ -13,7 +13,18 @@ class OUTOFSPACE_API UW_Crosshair : public UOsWidget
 	GENERATED_BODY()
 
 public:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
+
 	UFUNCTION(BlueprintCallable, Category="Crosshair")
+	void Lock(bool const bLock = true);
+
+protected:
+	class AOsPlayerController* OsPlayerController;
+
+	UPROPERTY(VisibleInstanceOnly, Category="Crosshair")
+	bool bIsLocked = false;
+
 	void PlayLockAnimation(bool const bReverse = false);
 
 private:
