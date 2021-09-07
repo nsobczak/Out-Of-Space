@@ -32,7 +32,7 @@ AOsPlayerCharacter::AOsPlayerCharacter()
 
 	if (HealthComp)
 	{
-		HealthComp->MaxHealth = 500.f;
+		HealthComp->MaxValue = 500.f;
 	}
 	else
 	{
@@ -73,7 +73,7 @@ void AOsPlayerCharacter::KillPlayer()
 {
 	if (HealthComp)
 	{
-		TakeDamage(HealthComp->MaxHealth, FDamageEvent(), GetController(), this);
+		TakeDamage(HealthComp->MaxValue, FDamageEvent(), GetController(), this);
 	}
 }
 

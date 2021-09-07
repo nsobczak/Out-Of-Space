@@ -182,7 +182,7 @@ float AOsCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 
 	if (HealthComp)
 	{
-		HealthComp->AddHealth(-damage);
+		HealthComp->Add(-damage);
 		if (HealthComp->IsDead())
 		{
 			if (AOsCharacter* osCharacter = Cast<AOsCharacter>(DamageCauser))

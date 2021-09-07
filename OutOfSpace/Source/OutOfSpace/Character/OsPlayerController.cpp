@@ -33,8 +33,8 @@ bool AOsPlayerController::UpdateCrosshairScreenLocation(FVector2D& screenLocatio
 
 	if (ProjectWorldLocationToScreen(OsPlayerCharacter->GetCrosshairWorldLocation(), screenLocation, false))
 	{
-		UE_LOG(LogOoS, Log, TEXT("crosshair screenLocation = %s | viewport size = (%d, %d)"),
-			*screenLocation.ToString(), ScreenWidth, ScreenHeight);
+		// UE_LOG(LogOoS, Log, TEXT("crosshair screenLocation = %s | viewport size = (%d, %d)"),
+		// 	*screenLocation.ToString(), ScreenWidth, ScreenHeight);
 	}
 
 	int32 ScreenX = (int32)screenLocation.X;
@@ -68,10 +68,10 @@ void AOsPlayerController::Tick(float DeltaSeconds)
 		// 	osPlayerChar->GetFollowCamera()->GetComponentLocation() + lengthDetection * osPlayerChar->GetFollowCamera()
 		// 	->GetForwardVector(), FColor::Green, false, 0, 0, 3.f);
 
-		if (outHits.Num() > 0)
-		{
-			UE_LOG(LogOoS, Log, TEXT("outHits.Num() = %d"), outHits.Num());
-		}
+		// if (outHits.Num() > 0)
+		// {
+		// 	UE_LOG(LogOoS, Log, TEXT("outHits.Num() = %d"), outHits.Num());
+		// }
 
 		for (int i = 0; i < outHits.Num(); ++i)
 		{
@@ -81,7 +81,7 @@ void AOsPlayerController::Tick(float DeltaSeconds)
 				FVector2D characterScreenLocation;
 				if (ProjectWorldLocationToScreen(currentOsChar->GetActorLocation(), characterScreenLocation, true))
 				{
-					UE_LOG(LogOoS, Log, TEXT("screenLocation = %s"), *characterScreenLocation.ToString());
+					// UE_LOG(LogOoS, Log, TEXT("screenLocation = %s"), *characterScreenLocation.ToString());
 					
 					// TODO: get crosshair screen position and compare dist to decide if we should lock
 

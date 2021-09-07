@@ -1,46 +1,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "ProgressBarComponent.h"
 #include "HealthComponent.generated.h"
 
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class OUTOFSPACE_API UHealthComponent : public UActorComponent
+UCLASS(ClassGroup=(ProgressBar), meta=(BlueprintSpawnableComponent))
+class OUTOFSPACE_API UHealthComponent : public UProgressBarComponent
 {
 	GENERATED_BODY()
 
 public:
-	UHealthComponent();
+	// UHealthComponent();
 
-	// Initial and max health
-	UPROPERTY(EditDefaultsOnly, Category = "Health")
-	float MaxHealth = 100.f;
-
-	// Get current health and divide by health max
-	UFUNCTION(BlueprintPure, Category = Gameplay)
-	FORCEINLINE float GetHealthRatio() const { return GetCurrentHealth() / MaxHealth; };
-
-protected:
-	virtual void BeginPlay() override;
-
-	// Set to MaxHealth on begin play
-	UPROPERTY(VisibleAnywhere, Category = "Health")
-	float CurrentHealth = 1.f;
-
-public:
 	// virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	//                            FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintPure, Category="Health")
-	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; };
+	FORCEINLINE bool IsDead() const { return IsEmpty(); };
+	
+// protected:
+// 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable, Category="Health")
-	FORCEINLINE void ResetHealth() { CurrentHealth = MaxHealth; };
-
-	UFUNCTION(Exec, BlueprintCallable, Category="Health")
-	void AddHealth(float healthAmount);
-
-	UFUNCTION(BlueprintPure, Category="Health")
-	FORCEINLINE bool IsDead() const { return CurrentHealth <= 0; };
 };
