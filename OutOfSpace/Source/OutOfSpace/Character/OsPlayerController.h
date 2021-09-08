@@ -70,7 +70,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Projectile")
 	FCrosshairEvent OnCrosshairLock;
-	
+
 	UFUNCTION(BlueprintPure, Category="Projectile")
 	FORCEINLINE FVector2D GetCrosshairScreenLocation() const { return CrosshairScreenLocation; };
 
@@ -84,6 +84,16 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category="Projectile")
 	bool UpdateCrosshairScreenLocation(FVector2D& screenLocation) const;
+
+	// Detect enemies, decide weather to lock crosshair or not, broadcast if lock state changed
+	void UpdateCrosshair();
+
+	// SphereTrace to detect enemies
+	UPROPERTY(EditDefaultsOnly, Category="Projectile")
+	float SphereTraceLengthDetection = 14000.f;
+	// SphereTrace to detect enemies
+	UPROPERTY(EditDefaultsOnly, Category="Projectile")
+	float SphereTraceSphereRadius = 1000.f;
 
 	UPROPERTY(EditDefaultsOnly, Category="Projectile")
 	float ScreenDistanceDetectionThreshold = 400.f;
@@ -133,4 +143,6 @@ protected:
 private:
 	// used for LookUpAtRate and turn 
 	float DefaultBaseRate = 35.f;
+
+	bool bIsCrosshairLocked = false;
 };

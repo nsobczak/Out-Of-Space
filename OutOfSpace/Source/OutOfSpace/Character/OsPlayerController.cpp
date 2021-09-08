@@ -43,57 +43,65 @@ bool AOsPlayerController::UpdateCrosshairScreenLocation(FVector2D& screenLocatio
 	return ScreenX >= 0 && ScreenY >= 0 && ScreenX < ScreenWidth && ScreenY < ScreenHeight;
 }
 
-void AOsPlayerController::Tick(float DeltaSeconds)
+void AOsPlayerController::UpdateCrosshair()
 {
-	Super::Tick(DeltaSeconds);
+	CrosshairScreenLocation = UpdateCrosshairScreenLocation(CrosshairScreenLocation) ? CrosshairScreenLocation :
+	                          FVector2D::ZeroVector;
 
-	// Handle screen calculations
-	CrosshairScreenLocation = UpdateCrosshairScreenLocation(CrosshairScreenLocation) ? CrosshairScreenLocation : FVector2D::ZeroVector;
-	
+	// TODO: AOsPlayerCharacter* osPlayerChar make param + update onPossess
 	AOsPlayerCharacter* osPlayerChar = Cast<AOsPlayerCharacter>(OsPlayerCharacter);
-	if (osPlayerChar)
+	if (!osPlayerChar) { return; }
+
+	// TODO: change ECollisionChannel::ECC_Pawn when needed
+	EObjectTypeQuery objectTypeQuery = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
+	TArray<TEnumAsByte<EObjectTypeQuery>> objectTypes = TArray<TEnumAsByte<EObjectTypeQuery>>{objectTypeQuery};
+	TArray<AActor*> actorToIgnore = TArray<AActor*>{osPlayerChar};
+	TArray<FHitResult> outHits;
+	UKismetSystemLibrary::SphereTraceMultiForObjects(this, osPlayerChar->GetFollowCamera()->GetComponentLocation(),
+		osPlayerChar->GetFollowCamera()->GetComponentLocation() + SphereTraceLengthDetection * osPlayerChar->
+		GetFollowCamera()->GetForwardVector(), SphereTraceSphereRadius, objectTypes, false, actorToIgnore,
+		EDrawDebugTrace::ForOneFrame, outHits, true, FLinearColor::Blue, FLinearColor::Red, 1.f);
+
+	// DrawDebugLine(GetWorld(), osPlayerChar->GetFollowCamera()->GetComponentLocation(),
+	// 	osPlayerChar->GetFollowCamera()->GetComponentLocation() + SphereTraceLengthDetection * osPlayerChar->GetFollowCamera()
+	// 	->GetForwardVector(), FColor::Green, false, 0, 0, 3.f);
+
+	if (outHits.Num() <= 0 && bIsCrosshairLocked)
 	{
-		float lengthDetection = 14000.f;
-		float sphereRadius = 1000.f;
-		EObjectTypeQuery objectTypeQuery = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
-		TArray<TEnumAsByte<EObjectTypeQuery>> objectTypes = TArray<TEnumAsByte<EObjectTypeQuery>>{objectTypeQuery};
-		TArray<AActor*> actorToIgnore = TArray<AActor*>{osPlayerChar};
-		TArray<FHitResult> outHits;
-		UKismetSystemLibrary::SphereTraceMultiForObjects(this, osPlayerChar->GetFollowCamera()->GetComponentLocation(),
-			osPlayerChar->GetFollowCamera()->GetComponentLocation() + lengthDetection * osPlayerChar->GetFollowCamera()
-			->GetForwardVector(), sphereRadius, objectTypes, false, actorToIgnore, EDrawDebugTrace::ForOneFrame,
-			outHits, true, FLinearColor::Blue, FLinearColor::Red, 1.f);
-
-		// DrawDebugLine(GetWorld(), osPlayerChar->GetFollowCamera()->GetComponentLocation(),
-		// 	osPlayerChar->GetFollowCamera()->GetComponentLocation() + lengthDetection * osPlayerChar->GetFollowCamera()
-		// 	->GetForwardVector(), FColor::Green, false, 0, 0, 3.f);
-
-		// if (outHits.Num() > 0)
-		// {
-		// 	UE_LOG(LogOoS, Log, TEXT("outHits.Num() = %d"), outHits.Num());
-		// }
-
+		bIsCrosshairLocked = false;
+		OnCrosshairLock.Broadcast(bIsCrosshairLocked);
+	}
+	else
+	{
 		for (int i = 0; i < outHits.Num(); ++i)
 		{
-			AOsCharacter* currentOsChar = Cast<AOsCharacter>(outHits[i].GetActor());
-			if (currentOsChar)
+			AOsCharacter* hitOsChar = Cast<AOsCharacter>(outHits[i].GetActor());
+			if (hitOsChar)
 			{
+				// Get crosshair screen position and compare dist to decide if we should lock
 				FVector2D characterScreenLocation;
-				if (ProjectWorldLocationToScreen(currentOsChar->GetActorLocation(), characterScreenLocation, true))
+				if (ProjectWorldLocationToScreen(hitOsChar->GetActorLocation(), characterScreenLocation, true))
 				{
-					// UE_LOG(LogOoS, Log, TEXT("screenLocation = %s"), *characterScreenLocation.ToString());
-					
-					// TODO: get crosshair screen position and compare dist to decide if we should lock
+					bool newCrosshairLockedState = FVector2D::DistSquared(CrosshairScreenLocation,
+						characterScreenLocation) < FMath::Square(ScreenDistanceDetectionThreshold);
 
-					bool bIsLocked = FVector2D::DistSquared(CrosshairScreenLocation, characterScreenLocation) <
-						FMath::Square(ScreenDistanceDetectionThreshold);
-					// TODO: boradcast only if a change happened
-					OnCrosshairLock.Broadcast(bIsLocked);
-					// UE_LOG(LogOoS, Log, TEXT("dist <"));
+					if (newCrosshairLockedState != bIsCrosshairLocked)
+					{
+						// broadcast only if a change happened
+						bIsCrosshairLocked = newCrosshairLockedState;
+						OnCrosshairLock.Broadcast(bIsCrosshairLocked);
+					}
 				}
 			}
 		}
 	}
+}
+
+void AOsPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	UpdateCrosshair();
 }
 
 void AOsPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
