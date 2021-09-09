@@ -44,27 +44,6 @@ public:
 	UFUNCTION()
 	void HandleIsGamePlayingUpdated(bool newVal);
 
-	virtual void SetupInputComponent() override;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
-	FMoveEvent OnMoveForward;
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
-	FMoveEvent OnMoveRight;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
-	FBasicActionEvent OnStart;
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
-	FBasicActionEvent OnAccept;
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
-	FBasicActionEvent OnBack;
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
-	FPauseEvent OnPause;
-
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
-	FBasicActionEvent OnFire;
-	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
-	FRollEvent OnRoll;
-
 	UFUNCTION(BlueprintPure, Category="game")
 	float GetGoalCompletion() const;
 
@@ -87,6 +66,8 @@ protected:
 
 	// Detect enemies, decide weather to lock crosshair or not, broadcast if lock state changed
 	void UpdateCrosshair();
+	// Get input keys associated to input actions to check if forward key is held down and if we should move forward
+	void HandleMoveForward();
 
 	// SphereTrace to detect enemies
 	UPROPERTY(EditDefaultsOnly, Category="Projectile")
@@ -101,11 +82,54 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category="Inputs")
 	bool bArePlayerActionsAllowed = false;
 
-	/** Called for forwards/backward input */
-	void MoveForward(float Value);
 
-	/** Called for side to side input */
-	void MoveRight(float Value);
+private:
+	// used for LookUpAtRate and turn 
+	float DefaultBaseRate = 35.f;
+
+	bool bIsCrosshairLocked = false;
+
+#pragma region Inputs
+	//______________________________________________________________
+
+public:
+	virtual void SetupInputComponent() override;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
+	FBasicActionEvent OnMoveForward;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
+	FBasicActionEvent OnStart;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
+	FBasicActionEvent OnAccept;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
+	FBasicActionEvent OnBack;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
+	FPauseEvent OnPause;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
+	FBasicActionEvent OnFire;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
+	FRollEvent OnRoll;
+
+protected:
+	const FName Axis_Turn = "Turn";
+	const FName Axis_TurnRate = "TurnRate";
+	const FName Axis_LookUp = "LookUp";
+	const FName Axis_LookUpRate = "LookUpRate";
+
+	const FName Action_MoveForward = "MoveForward";
+	const FName Action_Start = "Start";
+	const FName Action_Accept = "Accept";
+	const FName Action_Back = "Back";
+
+	const FName Action_RollLeft = "RollLeft";
+	const FName Action_RollRight = "RollRight";
+	const FName Action_Fire = "Fire";
+	const FName Action_Lock = "Lock";
+
+	/** Called for forwards/backward input */
+	void MoveForward();
 
 	virtual void AddYawInput(float Val) override;
 
@@ -139,10 +163,6 @@ protected:
 
 	void LockStart();
 	void LockCancel();
-
-private:
-	// used for LookUpAtRate and turn 
-	float DefaultBaseRate = 35.f;
-
-	bool bIsCrosshairLocked = false;
+	//____________________________________________________________________________
+#pragma endregion
 };

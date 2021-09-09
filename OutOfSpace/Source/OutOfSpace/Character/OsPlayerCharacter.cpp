@@ -42,6 +42,10 @@ AOsPlayerCharacter::AOsPlayerCharacter()
 	StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComp"));
 
 	Faction = EFaction::F_PLAYER;
+
+	bUseControllerRotationPitch = true;
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationRoll = false;
 }
 
 void AOsPlayerCharacter::PossessedBy(AController* NewController)

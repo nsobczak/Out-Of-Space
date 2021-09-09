@@ -3,6 +3,7 @@
 #include "OsCharacter.h"
 #include "OsPlayerCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/InputSettings.h"
 #include "Kismet/GameplayStatics.h"
 #include "OutOfSpace/OutOfSpace.h"
 #include "OutOfSpace/Game/OsGameMode.h"
@@ -97,11 +98,40 @@ void AOsPlayerController::UpdateCrosshair()
 	}
 }
 
+void AOsPlayerController::HandleMoveForward()
+{
+	// bool bMoveForward = false;
+	TArray<FName> ActionsNames;
+	GetDefault<UInputSettings>()->GetActionNames(ActionsNames);
+
+	UInputSettings* inputSettings = GetMutableDefault<UInputSettings>();
+	for (FName inputName : ActionsNames)
+	{
+		TArray<FInputActionKeyMapping> actionKeys;
+		inputSettings->GetActionMappingByName(inputName, actionKeys);
+
+		if (inputName.IsEqual(Action_MoveForward))
+		{
+			for (FInputActionKeyMapping key : actionKeys)
+			{
+				if (IsInputKeyDown(key.Key))
+				{
+					// bMoveForward = true;
+					MoveForward();
+					return;
+				}
+			}
+		}
+	}
+}
+
 void AOsPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
 	UpdateCrosshair();
+
+	HandleMoveForward();
 }
 
 void AOsPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -158,30 +188,30 @@ void AOsPlayerController::SetupInputComponent()
 	// Set up gameplay key bindings
 	check(InputComponent);
 
-	InputComponent->BindAxis("MoveForward", this, &AOsPlayerController::MoveForward).bExecuteWhenPaused = true;
-	InputComponent->BindAxis("MoveRight", this, &AOsPlayerController::MoveRight).bExecuteWhenPaused = true;
-
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	InputComponent->BindAxis("Turn", this, &AOsPlayerController::AddYawInput);
-	InputComponent->BindAxis("TurnRate", this, &AOsPlayerController::TurnAtRate);
-	InputComponent->BindAxis("LookUp", this, &AOsPlayerController::AddPitchInput);
-	InputComponent->BindAxis("LookUpRate", this, &AOsPlayerController::LookUpAtRate);
+	InputComponent->BindAxis(Axis_Turn, this, &AOsPlayerController::AddYawInput);
+	InputComponent->BindAxis(Axis_TurnRate, this, &AOsPlayerController::TurnAtRate);
+	InputComponent->BindAxis(Axis_LookUp, this, &AOsPlayerController::AddPitchInput);
+	InputComponent->BindAxis(Axis_LookUpRate, this, &AOsPlayerController::LookUpAtRate);
 
 	// handle touch devices
 	InputComponent->BindTouch(IE_Pressed, this, &AOsPlayerController::TouchStarted);
 	InputComponent->BindTouch(IE_Released, this, &AOsPlayerController::TouchStopped);
 
 	// Actions
-	InputComponent->BindAction("Start", IE_Released, this, &AOsPlayerController::Start).bExecuteWhenPaused = true;
-	InputComponent->BindAction("Accept", IE_Released, this, &AOsPlayerController::Accept).bExecuteWhenPaused = true;
-	InputComponent->BindAction("Back", IE_Released, this, &AOsPlayerController::Back).bExecuteWhenPaused = true;
+	InputComponent->BindAction(Action_MoveForward, IE_Pressed, this, &AOsPlayerController::MoveForward).
+	                bExecuteWhenPaused = true;
+	InputComponent->BindAction(Action_Start, IE_Released, this, &AOsPlayerController::Start).bExecuteWhenPaused = true;
+	InputComponent->BindAction(Action_Accept, IE_Released, this, &AOsPlayerController::Accept).bExecuteWhenPaused =
+		true;
+	InputComponent->BindAction(Action_Back, IE_Released, this, &AOsPlayerController::Back).bExecuteWhenPaused = true;
 
-	InputComponent->BindAction("RollLeft", IE_Released, this, &AOsPlayerController::RollLeft);
-	InputComponent->BindAction("RollRight", IE_Pressed, this, &AOsPlayerController::RollRight);
-	InputComponent->BindAction("Fire", IE_Released, this, &AOsPlayerController::Fire);
-	// InputComponent->BindAction("Lock", IE_Pressed, this, &AOsPlayerController::LockStart);
+	InputComponent->BindAction(Action_RollLeft, IE_Released, this, &AOsPlayerController::RollLeft);
+	InputComponent->BindAction(Action_RollRight, IE_Pressed, this, &AOsPlayerController::RollRight);
+	InputComponent->BindAction(Action_Fire, IE_Released, this, &AOsPlayerController::Fire);
+	// InputComponent->BindAction(Action_Lock, IE_Pressed, this, &AOsPlayerController::LockStart);
 	// InputComponent->BindAction("Fire", IE_Released, this, &AOsPlayerController::LockStart);
 }
 
@@ -240,11 +270,13 @@ void AOsPlayerController::LookUpAtRate(float Rate)
 	}
 }
 
-void AOsPlayerController::MoveForward(float Value)
-{
-	OnMoveForward.Broadcast(Value);
+// === actions ===
 
-	if (!IsPaused() && bArePlayerActionsAllowed && Value != 0.0f)
+void AOsPlayerController::MoveForward()
+{
+	OnMoveForward.Broadcast();
+
+	if (!IsPaused() && bArePlayerActionsAllowed)
 	{
 		// find out which way is forward
 		const FRotator Rotation = GetControlRotation();
@@ -255,32 +287,10 @@ void AOsPlayerController::MoveForward(float Value)
 
 		if (GetPawn())
 		{
-			GetPawn()->AddMovementInput(Direction, Value);
+			GetPawn()->AddMovementInput(Direction, 1.f);
 		}
 	}
 }
-
-void AOsPlayerController::MoveRight(float Value)
-{
-	OnMoveRight.Broadcast(Value);
-
-	if (!IsPaused() && bArePlayerActionsAllowed && Value != 0.0f)
-	{
-		// find out which way is right
-		const FRotator Rotation = GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		if (GetPawn())
-		{
-			GetPawn()->AddMovementInput(Direction, Value);
-		}
-	}
-}
-
-// === actions ===
 
 void AOsPlayerController::Start()
 {
