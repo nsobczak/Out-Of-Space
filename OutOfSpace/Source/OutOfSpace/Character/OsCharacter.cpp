@@ -44,85 +44,21 @@ AOsCharacter::AOsCharacter()
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComp"));
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
+void AOsCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 
-// void AOsCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
-// {
-// 	// Set up gameplay key bindings
-// 	check(PlayerInputComponent);
-// 	PlayerInputComponent->BindAction("RollRight", IE_Pressed, this, &ACharacter::Jump);
-// 	PlayerInputComponent->BindAction("RollLeft", IE_Released, this, &ACharacter::StopJumping);
-// 	PlayerInputComponent->BindAction("Lock", IE_Pressed, this, &ACharacter::StopJumping);
-// 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACharacter::StopJumping);
-// 	
-// 	PlayerInputComponent->BindAxis("MoveForward", this, &AOsCharacter::MoveForward);
-// 	PlayerInputComponent->BindAxis("MoveRight", this, &AOsCharacter::MoveRight);
-//
-// 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
-// 	// "turn" handles devices that provide an absolute delta, such as a mouse.
-// 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-// 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-// 	PlayerInputComponent->BindAxis("TurnRate", this, &AOsCharacter::TurnAtRate);
-// 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-// 	PlayerInputComponent->BindAxis("LookUpRate", this, &AOsCharacter::LookUpAtRate);
-//
-// 	// handle touch devices
-// 	PlayerInputComponent->BindTouch(IE_Pressed, this, &AOsCharacter::TouchStarted);
-// 	PlayerInputComponent->BindTouch(IE_Released, this, &AOsCharacter::TouchStopped);
-// }
-
-
-// void AOsCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
-// {
-// 		Jump();
-// }
-//
-// void AOsCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
-// {
-// 		StopJumping();
-// }
-//
-// void AOsCharacter::TurnAtRate(float Rate)
-// {
-// 	// calculate delta for this frame from the rate information
-// 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-// }
-//
-// void AOsCharacter::LookUpAtRate(float Rate)
-// {
-// 	// calculate delta for this frame from the rate information
-// 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-// }
-//
-// void AOsCharacter::MoveForward(float Value)
-// {
-// 	if ((Controller != nullptr) && (Value != 0.0f))
-// 	{
-// 		// find out which way is forward
-// 		const FRotator Rotation = Controller->GetControlRotation();
-// 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-//
-// 		// get forward vector
-// 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-// 		AddMovementInput(Direction, Value);
-// 	}
-// }
-//
-// void AOsCharacter::MoveRight(float Value)
-// {
-// 	if ( (Controller != nullptr) && (Value != 0.0f) )
-// 	{
-// 		// find out which way is right
-// 		const FRotator Rotation = Controller->GetControlRotation();
-// 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-// 	
-// 		// get right vector 
-// 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-// 		// add movement in that direction
-// 		AddMovementInput(Direction, Value);
-// 	}
-// }
+	switch (CharacterState)
+	{
+	case ECharacterState::CS_ROLLING:
+		{
+			HandleRoll(DeltaTime);
+		}
+	default:
+		{
+		}
+	}
+}
 
 void AOsCharacter::Fire()
 {
@@ -170,10 +106,44 @@ void AOsCharacter::Fire()
 	}
 }
 
+void AOsCharacter::Roll(const bool bIsRollRight)
+{
+	if (CharacterState != ECharacterState::CS_ROLLING)
+	{
+		TimeRemainingRolling = RollDuration;
+		RollStartLocation = GetActorLocation();
+		RollTargetLocation = RollStartLocation + (bIsRollRight ? 1.f : -1.f) * GetActorRightVector() * RollDistance;
+		CharacterState = ECharacterState::CS_ROLLING;
+	}
+}
+
+void AOsCharacter::HandleRoll(float DeltaTime)
+{
+	TimeRemainingRolling -= DeltaTime;
+
+	float alpha = (RollDuration - TimeRemainingRolling) / RollDuration;
+	alpha = FMath::Clamp(alpha, 0.f, 1.f);
+	float curveAlpha = alpha;
+
+	if (RollCurve != nullptr)
+	{
+		curveAlpha = RollCurve->GetFloatValue(alpha);
+	}
+
+	SetActorLocation(FMath::Lerp(RollStartLocation, RollTargetLocation, curveAlpha));
+
+	if (TimeRemainingRolling <= 0)
+	{
+		CharacterState = ECharacterState::CS_DEFAULT;
+	}
+}
+
 
 float AOsCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
-                               AActor* DamageCauser)
+	AActor* DamageCauser)
 {
+	if (CharacterState == ECharacterState::CS_DEAD) { return 0; }
+
 	float damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	if (DamageCauser)
 	{
@@ -198,8 +168,9 @@ float AOsCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 
 void AOsCharacter::Kill()
 {
-	UE_LOG(LogOoS, Log, TEXT("kill %s"), *GetName());
+	UE_LOG(LogOoS, Log, TEXT("%s is dead"), *GetName());
 
+	CharacterState = ECharacterState::CS_DEAD;
 	OnDeath.Broadcast();
 
 	if (!IsPlayerControlled())

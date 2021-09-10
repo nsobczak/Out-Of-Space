@@ -18,6 +18,15 @@ enum class EFaction : uint8
 	F_OTHER UMETA(DisplayName = "Other"),
 };
 
+UENUM(BlueprintType)
+enum class ECharacterState : uint8
+{
+	CS_DEFAULT UMETA(DisplayName = "Default"),
+	CS_ROLLING UMETA(DisplayName = "Rolling"),
+	CS_DEAD UMETA(DisplayName = "Dead"),
+	CS_OTHER UMETA(DisplayName = "Other"),
+};
+
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBasicEvent);
 
@@ -31,6 +40,8 @@ class AOsCharacter : public ACharacter
 public:
 	AOsCharacter();
 
+	virtual void Tick(float DeltaTime) override;
+
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;
@@ -39,16 +50,20 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
-	// Function that handles firing projectiles.
+	// Handles firing projectiles.
 	UFUNCTION()
 	void Fire();
+
+	// Performs strafe dash.
+	UFUNCTION()
+	void Roll(const bool bIsRollRight);
 
 	// Gun muzzle offset from the camera location.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FVector MuzzleOffset;
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
-	                         AActor* DamageCauser) override;
+		AActor* DamageCauser) override;
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Events")
 	FBasicEvent OnDeath;
@@ -71,6 +86,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Character")
 	FORCEINLINE EFaction GetFaction() const { return Faction; };
 
+	UFUNCTION(BlueprintPure, Category = "Character")
+	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; };
+
 protected:
 	// Projectile class to spawn.
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
@@ -92,32 +110,22 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Character")
 	EFaction Faction = EFaction::F_NEUTRAL;
 
-	// /** Called for forwards/backward input */
-	// void MoveForward(float Value);
-	//
-	// /** Called for side to side input */
-	// void MoveRight(float Value);
-	//
-	// /** 
-	//  * Called via input to turn at a given rate. 
-	//  * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	//  */
-	// void TurnAtRate(float Rate);
-	//
-	// /**
-	//  * Called via input to turn look up/down at a given rate. 
-	//  * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	//  */
-	// void LookUpAtRate(float Rate);
-	//
-	// /** Handler for when a touch input begins. */
-	// void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
-	//
-	// /** Handler for when a touch input stops. */
-	// void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
+	UPROPERTY(VisibleInstanceOnly, Category = "Character")
+	ECharacterState CharacterState = ECharacterState::CS_DEFAULT;
 
-	// protected:
-	// 	// APawn interface
-	// 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	// 	// End of APawn interface
+	UPROPERTY(EditDefaultsOnly, Category = "Character|Roll")
+	float RollDuration = .5f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character|Roll")
+	float RollDistance = 700.f;
+
+	// Curve to use on rolling
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Roll")
+	UCurveFloat* RollCurve = nullptr;
+
+private:
+	FVector RollStartLocation, RollTargetLocation;
+	float TimeRemainingRolling;
+	UFUNCTION(Category = "Character|Roll")
+	void HandleRoll(float DeltaTime);
 };

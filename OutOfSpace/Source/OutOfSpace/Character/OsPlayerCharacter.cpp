@@ -58,6 +58,7 @@ void AOsPlayerCharacter::PossessedBy(AController* NewController)
 	if (osPController)
 	{
 		osPController->OnFire.AddUniqueDynamic(this, &AOsPlayerCharacter::Fire);
+		osPController->OnRoll.AddUniqueDynamic(this, &AOsPlayerCharacter::Roll);
 	}
 }
 

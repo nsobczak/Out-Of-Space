@@ -315,22 +315,16 @@ void AOsPlayerController::Back()
 
 void AOsPlayerController::RollLeft()
 {
-	UE_LOG(LogInput, Log, TEXT("RollLeft pressed"));
-
 	if (!IsPaused() && bArePlayerActionsAllowed)
 	{
-		// TODO: implement roll
 		OnRoll.Broadcast(false);
 	}
 }
 
 void AOsPlayerController::RollRight()
 {
-	UE_LOG(LogInput, Log, TEXT("RollRight pressed"));
-
 	if (!IsPaused() && bArePlayerActionsAllowed)
 	{
-		// TODO: implement roll
 		OnRoll.Broadcast(true);
 	}
 }
