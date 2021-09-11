@@ -61,7 +61,7 @@ void AOsPlayerController::UpdateCrosshair()
 	UKismetSystemLibrary::SphereTraceMultiForObjects(this, osPlayerChar->GetFollowCamera()->GetComponentLocation(),
 		osPlayerChar->GetFollowCamera()->GetComponentLocation() + SphereTraceLengthDetection * osPlayerChar->
 		GetFollowCamera()->GetForwardVector(), SphereTraceSphereRadius, objectTypes, false, actorToIgnore,
-		EDrawDebugTrace::ForOneFrame, outHits, true, FLinearColor::Blue, FLinearColor::Red, 1.f);
+		EDrawDebugTrace::None, outHits, true, FLinearColor::Blue, FLinearColor::Red, 1.f);
 
 	// DrawDebugLine(GetWorld(), osPlayerChar->GetFollowCamera()->GetComponentLocation(),
 	// 	osPlayerChar->GetFollowCamera()->GetComponentLocation() + SphereTraceLengthDetection * osPlayerChar->GetFollowCamera()
@@ -201,14 +201,14 @@ void AOsPlayerController::SetupInputComponent()
 	InputComponent->BindTouch(IE_Released, this, &AOsPlayerController::TouchStopped);
 
 	// Actions
-	InputComponent->BindAction(Action_MoveForward, IE_Pressed, this, &AOsPlayerController::MoveForward).
-	                bExecuteWhenPaused = true;
+	// InputComponent->BindAction(Action_MoveForward, IE_Pressed, this, &AOsPlayerController::MoveForward).
+	//                 bExecuteWhenPaused = true;
 	InputComponent->BindAction(Action_Start, IE_Released, this, &AOsPlayerController::Start).bExecuteWhenPaused = true;
 	InputComponent->BindAction(Action_Accept, IE_Released, this, &AOsPlayerController::Accept).bExecuteWhenPaused =
 		true;
 	InputComponent->BindAction(Action_Back, IE_Released, this, &AOsPlayerController::Back).bExecuteWhenPaused = true;
 
-	InputComponent->BindAction(Action_RollLeft, IE_Released, this, &AOsPlayerController::RollLeft);
+	InputComponent->BindAction(Action_RollLeft, IE_Pressed, this, &AOsPlayerController::RollLeft);
 	InputComponent->BindAction(Action_RollRight, IE_Pressed, this, &AOsPlayerController::RollRight);
 	InputComponent->BindAction(Action_Fire, IE_Released, this, &AOsPlayerController::Fire);
 	// InputComponent->BindAction(Action_Lock, IE_Pressed, this, &AOsPlayerController::LockStart);
