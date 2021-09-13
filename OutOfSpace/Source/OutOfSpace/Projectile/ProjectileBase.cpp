@@ -84,11 +84,6 @@ void AProjectileBase::FireInDirection(const FVector& ShootDirection)
 void AProjectileBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
                             FVector NormalImpulse, const FHitResult& Hit)
 {
-	// if (OtherActor != this && OtherComponent->IsSimulatingPhysics())
-	// {
-	// 	OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);
-	// }
-
 	// TODO: add team faction correctly to prevent friendly fire
 	AOsCharacter* osCharOther = Cast<AOsCharacter>(OtherActor);
 	AOsCharacter* osCharInstigator = Cast<AOsCharacter>(GetInstigator());
@@ -98,5 +93,8 @@ void AProjectileBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 		osCharOther->TakeDamage(DamageValue, FDamageEvent(), GetInstigator()->GetController(), GetInstigator());
 	}
 
+	// TODO: add particle
+	// TODO: add sound
+	
 	Destroy();
 }

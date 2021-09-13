@@ -1,4 +1,4 @@
-#include "OutOfSpace/UI/W_Crosshair.h"
+#include "W_Crosshair.h"
 #include "Animation/WidgetAnimation.h"
 #include "Kismet/GameplayStatics.h"
 #include "OutOfSpace/Character/OsPlayerController.h"
@@ -10,7 +10,6 @@ void UW_Crosshair::NativeConstruct()
 
 	OsPlayerController = Cast<AOsPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
-	UE_LOG(LogTemp, Warning, TEXT("test NativeConstruct"));
 	if (OsPlayerController)
 	{
 		OsPlayerController->OnCrosshairLock.AddUniqueDynamic(this, &UW_Crosshair::Lock);

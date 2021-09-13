@@ -145,10 +145,12 @@ float AOsCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	if (CharacterState == ECharacterState::CS_DEAD) { return 0; }
 
 	float damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	if (DamageCauser)
+
+	if (DamageAmount > 0 && DamageCauser)
 	{
 		UE_LOG(LogOoS, Log, TEXT("%s damages %s"), *DamageCauser->GetName(), *GetName());
 	}
+
 
 	if (HealthComp)
 	{
