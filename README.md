@@ -28,3 +28,7 @@ You are in space and enemies try to destroy you, you have to make it out!
 - world (add meteorite)
 - profile drawings
 - story lines
+
+## bugs
+
+- player is dead, can win if a projectile kills last enemy after death

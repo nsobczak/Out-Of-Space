@@ -46,6 +46,13 @@ bool AOsPlayerController::UpdateCrosshairScreenLocation(FVector2D& screenLocatio
 
 void AOsPlayerController::UpdateCrosshair()
 {
+	// check if button is down
+	// TODO: add foe to tarray<aactor> targetFoes and currentLockCount++ and (reset timeRemainingBeforeAddingAgain or add to tmap)
+	// if foe is close enough to crosshair and (time remaining in tmap <=0 or tmap does not contains) and currentLockCount < canLockCount
+	// - tmap<aactor foe, float timeRemainingBeforeAddingAgain>
+	// fire to each target on button released, and reset everything
+	
+	
 	CrosshairScreenLocation = UpdateCrosshairScreenLocation(CrosshairScreenLocation) ? CrosshairScreenLocation :
 	                          FVector2D::ZeroVector;
 

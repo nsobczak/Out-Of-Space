@@ -7,6 +7,7 @@
 #include "OutOfSpace/OutOfSpace.h"
 #include "OutOfSpace/Component/HealthComponent.h"
 #include "OutOfSpace/Projectile/ProjectileBase.h"
+#include "OutOfSpace/Projectile/ProjectileHoming.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AOsCharacter
@@ -35,6 +36,7 @@ AOsCharacter::AOsCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
 	ProjectileClass = AProjectileBase::StaticClass();
+	HomingProjectileClass = AProjectileHoming::StaticClass();
 
 	// muzzle
 	MuzzleComp = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"));

@@ -4,8 +4,10 @@
 #include "OsPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "OutOfSpace/OutOfSpace.h"
 #include "OutOfSpace/Component/StaminaComponent.h"
+#include "OutOfSpace/Projectile/ProjectileHoming.h"
 
 
 AOsPlayerCharacter::AOsPlayerCharacter()
@@ -89,6 +91,13 @@ void AOsPlayerCharacter::KillPlayer()
 void AOsPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	TArray<AActor*> actors;
+	UGameplayStatics::GetAllActorsOfClass(this, AOsCharacter::StaticClass(), actors);
+	if (actors.Num() > 0)
+	{
+		CurrentTarget = actors[0];
+	}
 }
 
 void AOsPlayerCharacter::Tick(float DeltaTime)
@@ -105,4 +114,49 @@ float AOsPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	AActor* DamageCauser)
 {
 	return bIsInvulnerable ? 0 : Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
+void AOsPlayerCharacter::Fire()
+{
+	// We use this func to test homing projectile
+	if (ProjectileClass)
+	{
+		// Get the camera transform.
+		FVector CameraLocation;
+		FRotator CameraRotation;
+		GetActorEyesViewPoint(CameraLocation, CameraRotation);
+
+		// Set MuzzleOffset to spawn projectiles slightly in front of the camera.
+		MuzzleOffset.Set(100.0f, 0.0f, 0.0f);
+
+		// Transform MuzzleOffset from camera space to world space.
+		// FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
+		FVector MuzzleLocation = MuzzleComp->GetComponentLocation();
+
+		// // Skew the aim to be slightly upwards.
+		FRotator MuzzleRotation = CameraRotation;
+		// MuzzleRotation.Pitch += 10.0f;
+
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.Instigator = GetInstigator();
+
+			// Spawn the projectile at the muzzle.
+			AProjectileHoming* Projectile = World->SpawnActor<AProjectileHoming>(
+				ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+			if (Projectile)
+			{
+				// Set the projectile's initial trajectory.
+				FVector LaunchDirection = IsPlayerControlled() ? MuzzleRotation.Vector() : GetActorForwardVector();
+				Projectile->FireInDirectionToTarget(LaunchDirection, CurrentTarget);
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to fire a projectile: ProjectileClass is null"));
+	}
 }

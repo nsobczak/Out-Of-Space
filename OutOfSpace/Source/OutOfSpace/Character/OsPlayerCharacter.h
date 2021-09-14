@@ -30,6 +30,8 @@ public:
 	UFUNCTION(BlueprintPure, Category="Projectile")
 	FORCEINLINE FVector GetCrosshairWorldLocation() const { return CrosshairLocComp->GetComponentLocation(); }
 
+	virtual void Fire() override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -61,4 +63,8 @@ protected:
 
 	UFUNCTION(Exec, BlueprintCallable, Category = "Cheat")
 	void ToggleInvulnerabilityForPlayer() { bIsInvulnerable = ! bIsInvulnerable; }
+
+	UPROPERTY(VisibleInstanceOnly, Category = "Projectile")
+	AActor* CurrentTarget;
+	
 };

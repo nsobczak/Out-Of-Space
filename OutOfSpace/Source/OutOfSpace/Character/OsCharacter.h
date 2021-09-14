@@ -52,11 +52,11 @@ public:
 
 	// Handles firing projectiles.
 	UFUNCTION()
-	void Fire();
+	virtual void Fire();
 
 	// Performs strafe dash.
 	UFUNCTION()
-	void Roll(const bool bIsRollRight);
+	virtual void Roll(const bool bIsRollRight);
 
 	// Gun muzzle offset from the camera location.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
@@ -93,6 +93,10 @@ protected:
 	// Projectile class to spawn.
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<class AProjectileBase> ProjectileClass;
+
+	// Homing projectile class to spawn.
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<class AProjectileBase> HomingProjectileClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	USceneComponent* MuzzleComp;

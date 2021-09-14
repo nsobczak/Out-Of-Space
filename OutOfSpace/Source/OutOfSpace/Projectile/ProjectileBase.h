@@ -12,10 +12,6 @@ class OUTOFSPACE_API AProjectileBase : public AActor
 public:
 	AProjectileBase();
 
-protected:
-	virtual void BeginPlay() override;
-
-public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Sphere collision component.
@@ -40,8 +36,11 @@ public:
 	// Function that is called when the projectile hits something.
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
-	           FVector NormalImpulse, const FHitResult& Hit);
+		FVector NormalImpulse, const FHitResult& Hit);
 
 	UPROPERTY(EditAnywhere, Category = Projectile)
 	float DamageValue = 50.f;
+
+protected:
+	virtual void BeginPlay() override;
 };
