@@ -30,7 +30,7 @@ public:
 	UFUNCTION(BlueprintPure, Category="Projectile")
 	FORCEINLINE FVector GetCrosshairWorldLocation() const { return CrosshairLocComp->GetComponentLocation(); }
 
-	virtual void Fire() override;
+	// virtual void FireSimple(EFireType fireType) override;
 
 protected:
 	virtual void BeginPlay() override;

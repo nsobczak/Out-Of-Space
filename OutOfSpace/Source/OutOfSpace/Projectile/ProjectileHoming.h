@@ -13,7 +13,7 @@ public:
 	AProjectileHoming();
 	virtual void Tick(float DeltaTime) override;
 
-	void FireInDirectionToTarget(const FVector& ShootDirection, AActor*& HomingTarget);
+	void FireInDirectionToTarget(const FVector& ShootDirection, AActor* HomingTarget);
 	
 protected:
 	virtual void BeginPlay() override;

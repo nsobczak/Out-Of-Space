@@ -59,7 +59,7 @@ EBTNodeResult::Type UBTTask_Fire::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	possessedOsChara->SetActorRotation(rot, ETeleportType::TeleportPhysics);
 	// possessedOsChara->SetActorLocation(FVector(0, 0, 0));
 
-	possessedOsChara->Fire();
+	possessedOsChara->Fire(EFireType::FT_SIMPLE);
 
 	return EBTNodeResult::Succeeded;
 }

@@ -15,7 +15,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRollEvent, bool, bIsRollRight);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPawnEvent, APawn*, pawn);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCrosshairEvent, bool, bIsLocked);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCrosshairEvent, bool, bIsDetected);
 
 
 /**
@@ -64,8 +64,8 @@ protected:
 	UFUNCTION(BlueprintPure, Category="Projectile")
 	bool UpdateCrosshairScreenLocation(FVector2D& screenLocation) const;
 
-	// Detect enemies, decide weather to lock crosshair or not, broadcast if lock state changed
-	void UpdateCrosshair();
+	// Detect enemies, update crosshair or not, broadcast if lock state changed, also handles player lock on enemies
+	void HandleEnemyDetection();
 	// Get input keys associated to input actions to check if forward key is held down and if we should move forward
 	void HandleMoveForward();
 
@@ -126,6 +126,7 @@ protected:
 	const FName Action_RollLeft = "RollLeft";
 	const FName Action_RollRight = "RollRight";
 	const FName Action_Fire = "Fire";
+	// const FName Action_On_Locked = "FireOnLocked";
 	const FName Action_Lock = "Lock";
 
 	/** Called for forwards/backward input */
@@ -160,6 +161,7 @@ protected:
 	void RollLeft();
 	void RollRight();
 	void Fire();
+	void FireOnLocked();
 
 	void LockStart();
 	void LockCancel();

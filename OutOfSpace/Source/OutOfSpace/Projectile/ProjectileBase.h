@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "OutOfSpace/Data/ShootingEnums.h"
 #include "ProjectileBase.generated.h"
 
 UCLASS()
@@ -27,7 +28,7 @@ public:
 	UStaticMeshComponent* ProjectileMeshComponent;
 
 	// Projectile material
-	UPROPERTY(VisibleDefaultsOnly, Category = Movement)
+	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
 	UMaterialInstanceDynamic* ProjectileMaterialInstance;
 
 	// Function that initializes the projectile's velocity in the shoot direction.
@@ -43,4 +44,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	EProjectileType ProjectileType = EProjectileType::Normal;
 };

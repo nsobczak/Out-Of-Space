@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "OutOfSpace/Component/HealthComponent.h"
+#include "OutOfSpace/Data/ShootingEnums.h"
 #include "OsCharacter.generated.h"
 
 class UHealthComponent;
@@ -15,7 +16,7 @@ enum class EFaction : uint8
 	F_PLAYER UMETA(DisplayName = "Player ally"),
 	F_ALIEN UMETA(DisplayName = "Alien"),
 	F_NEUTRAL UMETA(DisplayName = "Neutral"),
-	F_OTHER UMETA(DisplayName = "Other"),
+	F_OTHER UMETA(DisplayName = "Other")
 };
 
 UENUM(BlueprintType)
@@ -24,13 +25,22 @@ enum class ECharacterState : uint8
 	CS_DEFAULT UMETA(DisplayName = "Default"),
 	CS_ROLLING UMETA(DisplayName = "Rolling"),
 	CS_DEAD UMETA(DisplayName = "Dead"),
-	CS_OTHER UMETA(DisplayName = "Other"),
+	CS_OTHER UMETA(DisplayName = "Other")
+};
+
+UENUM(BlueprintType)
+enum class EFireType : uint8
+{
+	FT_SIMPLE UMETA(DisplayName = "Default"),
+	FT_ON_LOCKED UMETA(DisplayName = "OnLocked")
 };
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBasicEvent);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FValueUpdateEvent, int32 const, newValue);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FLockEvent, AActor*, LockedBy);
 
 UCLASS(config=Game)
 class AOsCharacter : public ACharacter
@@ -52,11 +62,18 @@ public:
 
 	// Handles firing projectiles.
 	UFUNCTION()
-	virtual void Fire();
+	virtual void FireInput() { Fire(EFireType::FT_SIMPLE); };
+	virtual void Fire(EFireType fireType = EFireType::FT_SIMPLE);
 
 	// Performs strafe dash.
 	UFUNCTION()
 	virtual void Roll(const bool bIsRollRight);
+
+	UFUNCTION(BlueprintPure, Category = "Character")
+	FORCEINLINE EFaction GetFaction() const { return Faction; };
+
+	UFUNCTION(BlueprintPure, Category = "Character")
+	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; };
 
 	// Gun muzzle offset from the camera location.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
@@ -65,14 +82,14 @@ public:
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
 		AActor* DamageCauser) override;
 
+	UFUNCTION(BlueprintPure, Category = Gameplay)
+	FORCEINLINE UHealthComponent* GetHealthComp() const { return HealthComp; };
+
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Events")
 	FBasicEvent OnDeath;
 
 	UFUNCTION(BlueprintPure, Category = Gameplay)
 	FORCEINLINE bool IsDead() const { return HealthComp ? HealthComp->IsDead() : false; };
-
-	UFUNCTION(BlueprintPure, Category = Gameplay)
-	FORCEINLINE UHealthComponent* GetHealthComp() const { return HealthComp; };
 
 	UFUNCTION(BlueprintPure, Category = Gameplay)
 	FORCEINLINE int32 GetFoeKilledCount() const { return FoeKilledCount; };
@@ -83,11 +100,10 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Events")
 	FValueUpdateEvent OnFoeKilledCountUpdated;
 
-	UFUNCTION(BlueprintPure, Category = "Character")
-	FORCEINLINE EFaction GetFaction() const { return Faction; };
-
-	UFUNCTION(BlueprintPure, Category = "Character")
-	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; };
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Events")
+	FLockEvent OnLocked;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Events")
+	FLockEvent OnUnlocked;
 
 protected:
 	// Projectile class to spawn.
@@ -105,6 +121,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Character")
 	UHealthComponent* HealthComp;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Character")
+	class ULockedWidgetComponent* LockedWidget;
+
 	void Kill();
 
 	// Amount of enemy killed
@@ -116,6 +135,11 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, Category = "Character")
 	ECharacterState CharacterState = ECharacterState::CS_DEFAULT;
+
+	void FireSimple(FVector MuzzleLocation, FRotator MuzzleRotation, UWorld* World, FActorSpawnParameters SpawnParams);
+	// Handles firing projectiles on locked actors if a LockControllerComponent is equipped.
+	void FireOnLocked(FVector MuzzleLocation, FRotator MuzzleRotation, UWorld* World,
+		FActorSpawnParameters SpawnParams);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character|Roll")
 	float RollDuration = .5f;

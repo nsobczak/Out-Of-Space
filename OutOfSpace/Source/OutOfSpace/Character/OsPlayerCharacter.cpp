@@ -63,7 +63,7 @@ void AOsPlayerCharacter::PossessedBy(AController* NewController)
 	AOsPlayerController* osPController = Cast<AOsPlayerController>(NewController);
 	if (osPController)
 	{
-		osPController->OnFire.AddUniqueDynamic(this, &AOsPlayerCharacter::Fire);
+		osPController->OnFire.AddUniqueDynamic(this, &AOsPlayerCharacter::FireInput);
 		osPController->OnRoll.AddUniqueDynamic(this, &AOsPlayerCharacter::Roll);
 	}
 }
@@ -74,7 +74,7 @@ void AOsPlayerCharacter::UnPossessed()
 
 	if (AOsPlayerController* osPController = Cast<AOsPlayerController>(CurrentController))
 	{
-		osPController->OnFire.RemoveDynamic(this, &AOsPlayerCharacter::Fire);
+		osPController->OnFire.RemoveDynamic(this, &AOsPlayerCharacter::FireInput);
 	}
 
 	// CurrentController = nullptr;
@@ -116,47 +116,47 @@ float AOsPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	return bIsInvulnerable ? 0 : Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
-void AOsPlayerCharacter::Fire()
-{
-	// We use this func to test homing projectile
-	if (ProjectileClass)
-	{
-		// Get the camera transform.
-		FVector CameraLocation;
-		FRotator CameraRotation;
-		GetActorEyesViewPoint(CameraLocation, CameraRotation);
-
-		// Set MuzzleOffset to spawn projectiles slightly in front of the camera.
-		MuzzleOffset.Set(100.0f, 0.0f, 0.0f);
-
-		// Transform MuzzleOffset from camera space to world space.
-		// FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
-		FVector MuzzleLocation = MuzzleComp->GetComponentLocation();
-
-		// // Skew the aim to be slightly upwards.
-		FRotator MuzzleRotation = CameraRotation;
-		// MuzzleRotation.Pitch += 10.0f;
-
-		UWorld* World = GetWorld();
-		if (World)
-		{
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.Owner = this;
-			SpawnParams.Instigator = GetInstigator();
-
-			// Spawn the projectile at the muzzle.
-			AProjectileHoming* Projectile = World->SpawnActor<AProjectileHoming>(
-				ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
-			if (Projectile)
-			{
-				// Set the projectile's initial trajectory.
-				FVector LaunchDirection = IsPlayerControlled() ? MuzzleRotation.Vector() : GetActorForwardVector();
-				Projectile->FireInDirectionToTarget(LaunchDirection, CurrentTarget);
-			}
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to fire a projectile: ProjectileClass is null"));
-	}
-}
+// void AOsPlayerCharacter::FireSimple(EFireType fireType)
+// {
+// 	// We use this func to test homing projectile
+// 	if (ProjectileClass)
+// 	{
+// 		// Get the camera transform.
+// 		FVector CameraLocation;
+// 		FRotator CameraRotation;
+// 		GetActorEyesViewPoint(CameraLocation, CameraRotation);
+//
+// 		// Set MuzzleOffset to spawn projectiles slightly in front of the camera.
+// 		MuzzleOffset.Set(100.0f, 0.0f, 0.0f);
+//
+// 		// Transform MuzzleOffset from camera space to world space.
+// 		// FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
+// 		FVector MuzzleLocation = MuzzleComp->GetComponentLocation();
+//
+// 		// // Skew the aim to be slightly upwards.
+// 		FRotator MuzzleRotation = CameraRotation;
+// 		// MuzzleRotation.Pitch += 10.0f;
+//
+// 		UWorld* World = GetWorld();
+// 		if (World)
+// 		{
+// 			FActorSpawnParameters SpawnParams;
+// 			SpawnParams.Owner = this;
+// 			SpawnParams.Instigator = GetInstigator();
+//
+// 			// Spawn the projectile at the muzzle.
+// 			AProjectileHoming* Projectile = World->SpawnActor<AProjectileHoming>(
+// 				ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+// 			if (Projectile)
+// 			{
+// 				// Set the projectile's initial trajectory.
+// 				FVector LaunchDirection = IsPlayerControlled() ? MuzzleRotation.Vector() : GetActorForwardVector();
+// 				Projectile->FireInDirectionToTarget(LaunchDirection, CurrentTarget);
+// 			}
+// 		}
+// 	}
+// 	else
+// 	{
+// 		UE_LOG(LogTemp, Warning, TEXT("Failed to fire a projectile: ProjectileClass is null"));
+// 	}
+// }
