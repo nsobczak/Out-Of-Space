@@ -9,21 +9,21 @@ ULockControllerComponent::ULockControllerComponent()
 }
 
 
-void ULockControllerComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-}
-
-
-void ULockControllerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-	FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
+// void ULockControllerComponent::BeginPlay()
+// {
+// 	Super::BeginPlay();
+//
+// 	// ...
+// }
+//
+//
+// void ULockControllerComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+// 	FActorComponentTickFunction* ThisTickFunction)
+// {
+// 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+//
+// 	// ...
+// }
 
 bool ULockControllerComponent::LockCharacter(AOsCharacter*& osCharacterToLock)
 {
@@ -43,7 +43,6 @@ void ULockControllerComponent::ReleaseLock(bool bWasLockCanceled)
 	for (int i = 0; i < LockedCharacters.Num(); ++i)
 	{
 		AOsCharacter*& osChar = LockedCharacters[i];
-		// TODO: toggle lock widget visibility
 		osChar->OnUnlocked.Broadcast(GetOwner());
 
 		if (!bWasLockCanceled && osChar)

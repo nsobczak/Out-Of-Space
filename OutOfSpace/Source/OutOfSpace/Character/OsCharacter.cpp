@@ -50,6 +50,17 @@ AOsCharacter::AOsCharacter()
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComp"));
 }
 
+void AOsCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (!LockController)
+	{
+		LockController = Cast<ULockControllerComponent>(GetComponentByClass(ULockControllerComponent::StaticClass()));
+	}
+}
+
+
 void AOsCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -59,12 +70,17 @@ void AOsCharacter::Tick(float DeltaTime)
 	case ECharacterState::CS_ROLLING:
 		{
 			HandleRoll(DeltaTime);
+			break;
 		}
 	default:
 		{
+			break;
 		}
 	}
 }
+
+#pragma region Fire
+//______________________________________________________________
 
 void AOsCharacter::FireSimple(FVector MuzzleLocation, FRotator MuzzleRotation, UWorld* World,
 	FActorSpawnParameters SpawnParams)
@@ -84,37 +100,57 @@ void AOsCharacter::FireSimple(FVector MuzzleLocation, FRotator MuzzleRotation, U
 	}
 }
 
+void AOsCharacter::SpawnHomingProjectileAndFire(FVector MuzzleLocation, FRotator MuzzleRotation, UWorld* World,
+	FActorSpawnParameters SpawnParams, AActor* HomingTarget)
+{
+	AProjectileHoming* HomingProjectile = World->SpawnActor<AProjectileHoming>(HomingProjectileClass,
+		MuzzleLocation, MuzzleRotation, SpawnParams);
+	if (HomingProjectile)
+	{
+		FVector LaunchDirection = IsPlayerControlled() ? MuzzleRotation.Vector() : GetActorForwardVector();
+		HomingProjectile->FireInDirectionToTarget(LaunchDirection, HomingTarget);
+	}
+}
+
 void AOsCharacter::FireOnLocked(FVector MuzzleLocation, FRotator MuzzleRotation, UWorld* World,
 	FActorSpawnParameters SpawnParams)
 {
-	UE_LOG(LogOoS, Log, TEXT("AOsCharacter::FireOnLocked"));
-
-	if (!HomingProjectileClass)
+	if (!HomingProjectileClass || !LockController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to fire a projectile: HomingProjectileClass is null"));
+		UE_LOG(LogTemp, Warning, TEXT("Failed to fire a projectile: HomingProjectileClass or LockController is null"));
 		return;
 	}
 
-	ULockControllerComponent* lockController = Cast<ULockControllerComponent>(
-		GetComponentByClass(ULockControllerComponent::StaticClass()));
-	if (!lockController) { return; }
-
-	for (int i = 0; i < lockController->GetLockedCharacters().Num(); ++i)
+	for (int i = 0; i < LockController->GetLockedCharacters().Num(); ++i)
 	{
-		AProjectileHoming* Projectile = World->SpawnActor<AProjectileHoming>(HomingProjectileClass, MuzzleLocation,
-			MuzzleRotation, SpawnParams);
-		if (Projectile)
-		{
-			FVector LaunchDirection = IsPlayerControlled() ? MuzzleRotation.Vector() : GetActorForwardVector();
-			Projectile->FireInDirectionToTarget(LaunchDirection, lockController->GetLockedCharacters()[i]);
-		}
+		AActor* HomingTarget = LockController->GetLockedCharacters()[i];
+		FTimerHandle timerHandle;
+		FTimerDelegate timerDelegate;
+		timerDelegate.BindUObject(this, &AOsCharacter::SpawnHomingProjectileAndFire, MuzzleLocation, MuzzleRotation,
+			World, SpawnParams, HomingTarget);
+		GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, 0.05f * i, false);
 	}
+
+	LockController->ReleaseLock(false);
+}
+
+void AOsCharacter::FireInput()
+{
+	// Check if there are any locked enemies in lockControllerComponent to determine which fire type to use
+	EFireType fireType = EFireType::FT_SIMPLE;
+
+	if (LockController && LockController->GetLockedCharacters().Num() > 0)
+	{
+		fireType = EFireType::FT_ON_LOCKED;
+	}
+
+	Fire(fireType);
 }
 
 void AOsCharacter::Fire(EFireType fireType)
 {
 	// Attempt to fire a projectile.
-	// TODO: add timer to prevent character from firing too often, right it is done manually in behavior tree for foes
+	// TODO: add timer to prevent character from firing too often, right now it is done manually in behavior tree for foes
 
 
 	// Get the camera transform.
@@ -138,21 +174,26 @@ void AOsCharacter::Fire(EFireType fireType)
 		SpawnParams.Owner = this;
 		SpawnParams.Instigator = GetInstigator();
 
-
+		// UE_LOG(LogHUD, Log, TEXT("fireType = %s in AOsCharacter::Fire"), *UEnum::GetValueAsString(fireType));
 		switch (fireType)
 		{
 		case EFireType::FT_ON_LOCKED:
 			{
 				FireOnLocked(MuzzleLocation, MuzzleRotation, World, SpawnParams);
+				break;
 			}
 		case EFireType::FT_SIMPLE:
 		default:
 			{
 				FireSimple(MuzzleLocation, MuzzleRotation, World, SpawnParams);
+				break;
 			}
 		}
 	}
 }
+
+//____________________________________________________________________________
+#pragma endregion
 
 void AOsCharacter::Roll(const bool bIsRollRight)
 {
@@ -196,7 +237,7 @@ float AOsCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 
 	if (DamageAmount > 0 && DamageCauser)
 	{
-		UE_LOG(LogOoS, Log, TEXT("%s damages %s"), *DamageCauser->GetName(), *GetName());
+		UE_LOG(LogCombat, Log, TEXT("%s damages %s"), *DamageCauser->GetName(), *GetName());
 	}
 
 

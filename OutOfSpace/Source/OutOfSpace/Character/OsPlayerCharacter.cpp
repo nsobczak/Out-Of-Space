@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "OutOfSpace/OutOfSpace.h"
+#include "OutOfSpace/Component/LockControllerComponent.h"
 #include "OutOfSpace/Component/StaminaComponent.h"
 #include "OutOfSpace/Projectile/ProjectileHoming.h"
 
@@ -46,6 +47,7 @@ AOsPlayerCharacter::AOsPlayerCharacter()
 	}
 
 	StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComp"));
+	LockController = CreateDefaultSubobject<ULockControllerComponent>(TEXT("LockControllerComp"));;
 
 	Faction = EFaction::F_PLAYER;
 
@@ -92,12 +94,13 @@ void AOsPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TArray<AActor*> actors;
-	UGameplayStatics::GetAllActorsOfClass(this, AOsCharacter::StaticClass(), actors);
-	if (actors.Num() > 0)
-	{
-		CurrentTarget = actors[0];
-	}
+	// TODO: remove this debug stuff
+	// TArray<AActor*> actors;
+	// UGameplayStatics::GetAllActorsOfClass(this, AOsCharacter::StaticClass(), actors);
+	// if (actors.Num() > 0)
+	// {
+	// 	CurrentTarget = actors[0];
+	// }
 }
 
 void AOsPlayerCharacter::Tick(float DeltaTime)
@@ -116,6 +119,7 @@ float AOsPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	return bIsInvulnerable ? 0 : Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
+// TODO: remove this debug stuff
 // void AOsPlayerCharacter::FireSimple(EFireType fireType)
 // {
 // 	// We use this func to test homing projectile

@@ -32,7 +32,7 @@ public:
 	// virtual void DrawHUD() override;
 	
 	UFUNCTION(BlueprintPure, Category = "HUD")
-	FString GetProjectVersion();
+	static FString GetProjectVersion();
 
 protected:
 	/** Called when the game starts. */

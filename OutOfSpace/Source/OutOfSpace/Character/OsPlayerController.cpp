@@ -6,6 +6,7 @@
 #include "GameFramework/InputSettings.h"
 #include "Kismet/GameplayStatics.h"
 #include "OutOfSpace/OutOfSpace.h"
+#include "OutOfSpace/Component/LockControllerComponent.h"
 #include "OutOfSpace/Game/OsGameMode.h"
 #include "OutOfSpace/Game/OsWorldSettings.h"
 
@@ -25,6 +26,34 @@ void AOsPlayerController::BeginPlay()
 	}
 
 	OsWorldSettings = Cast<AOsWorldSettings>(GetWorldSettings());
+}
+
+bool AOsPlayerController::IsActionButtonHeldDown(const FName ActionNameRef)
+{
+	bool result = false;
+
+	TArray<FName> actionsNames;
+	GetDefault<UInputSettings>()->GetActionNames(actionsNames);
+
+	UInputSettings* inputSettings = GetMutableDefault<UInputSettings>();
+	for (FName inputName : actionsNames)
+	{
+		TArray<FInputActionKeyMapping> actionKeys;
+		inputSettings->GetActionMappingByName(inputName, actionKeys);
+
+		if (inputName.IsEqual(ActionNameRef))
+		{
+			for (FInputActionKeyMapping key : actionKeys)
+			{
+				if (IsInputKeyDown(key.Key))
+				{
+					result = true;
+				}
+			}
+		}
+	}
+
+	return result;
 }
 
 bool AOsPlayerController::UpdateCrosshairScreenLocation(FVector2D& screenLocation) const
@@ -56,17 +85,15 @@ void AOsPlayerController::HandleEnemyDetection()
 	CrosshairScreenLocation = UpdateCrosshairScreenLocation(CrosshairScreenLocation) ? CrosshairScreenLocation :
 	                          FVector2D::ZeroVector;
 
-	// TODO: AOsPlayerCharacter* osPlayerChar make param + update onPossess
-	AOsPlayerCharacter* osPlayerChar = Cast<AOsPlayerCharacter>(OsPlayerCharacter);
-	if (!osPlayerChar) { return; }
+	if (!OsPlayerCharacter) { return; }
 
 	// TODO: change ECollisionChannel::ECC_Pawn when needed
 	EObjectTypeQuery objectTypeQuery = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
 	TArray<TEnumAsByte<EObjectTypeQuery>> objectTypes = TArray<TEnumAsByte<EObjectTypeQuery>>{objectTypeQuery};
-	TArray<AActor*> actorToIgnore = TArray<AActor*>{osPlayerChar};
+	TArray<AActor*> actorToIgnore = TArray<AActor*>{OsPlayerCharacter};
 	TArray<FHitResult> outHits;
-	UKismetSystemLibrary::SphereTraceMultiForObjects(this, osPlayerChar->GetFollowCamera()->GetComponentLocation(),
-		osPlayerChar->GetFollowCamera()->GetComponentLocation() + SphereTraceLengthDetection * osPlayerChar->
+	UKismetSystemLibrary::SphereTraceMultiForObjects(this, OsPlayerCharacter->GetFollowCamera()->GetComponentLocation(),
+		OsPlayerCharacter->GetFollowCamera()->GetComponentLocation() + SphereTraceLengthDetection * OsPlayerCharacter->
 		GetFollowCamera()->GetForwardVector(), SphereTraceSphereRadius, objectTypes, false, actorToIgnore,
 		EDrawDebugTrace::None, outHits, true, FLinearColor::Blue, FLinearColor::Red, 1.f);
 
@@ -90,14 +117,29 @@ void AOsPlayerController::HandleEnemyDetection()
 				FVector2D characterScreenLocation;
 				if (ProjectWorldLocationToScreen(hitOsChar->GetActorLocation(), characterScreenLocation, true))
 				{
+					// Crosshair
 					bool newCrosshairLockedState = FVector2D::DistSquared(CrosshairScreenLocation,
-						characterScreenLocation) < FMath::Square(ScreenDistanceDetectionThreshold);
+						characterScreenLocation) < FMath::Square(LockCrosshairScreenDistanceThreshold);
 
 					if (newCrosshairLockedState != bIsCrosshairLocked)
 					{
 						// broadcast only if a change happened
 						bIsCrosshairLocked = newCrosshairLockedState;
 						OnCrosshairLock.Broadcast(bIsCrosshairLocked);
+					}
+
+					// Fire lock
+					if (IsActionButtonHeldDown(Action_Fire))
+					{
+						bool newLockedFireState = FVector2D::DistSquared(CrosshairScreenLocation,
+							characterScreenLocation) < FMath::Square(LockFireScreenDistanceThreshold);
+						if (OsPlayerCharacter->GetLockController())
+						{
+							// TODO: handle adding same actor several times in lock foes array -
+							// - sort function to put what actor should be added in 1st position
+							// - timer to delay enemy addition to array in lock controller
+							OsPlayerCharacter->GetLockController()->LockCharacter(hitOsChar);
+						}
 					}
 				}
 			}
@@ -108,27 +150,11 @@ void AOsPlayerController::HandleEnemyDetection()
 void AOsPlayerController::HandleMoveForward()
 {
 	// bool bMoveForward = false;
-	TArray<FName> ActionsNames;
-	GetDefault<UInputSettings>()->GetActionNames(ActionsNames);
 
-	UInputSettings* inputSettings = GetMutableDefault<UInputSettings>();
-	for (FName inputName : ActionsNames)
+	if (IsActionButtonHeldDown(Action_MoveForward))
 	{
-		TArray<FInputActionKeyMapping> actionKeys;
-		inputSettings->GetActionMappingByName(inputName, actionKeys);
-
-		if (inputName.IsEqual(Action_MoveForward))
-		{
-			for (FInputActionKeyMapping key : actionKeys)
-			{
-				if (IsInputKeyDown(key.Key))
-				{
-					// bMoveForward = true;
-					MoveForward();
-					return;
-				}
-			}
-		}
+		MoveForward();
+		return;
 	}
 }
 
@@ -218,8 +244,6 @@ void AOsPlayerController::SetupInputComponent()
 	InputComponent->BindAction(Action_RollLeft, IE_Pressed, this, &AOsPlayerController::RollLeft);
 	InputComponent->BindAction(Action_RollRight, IE_Pressed, this, &AOsPlayerController::RollRight);
 	InputComponent->BindAction(Action_Fire, IE_Released, this, &AOsPlayerController::Fire);
-	// InputComponent->BindAction(Action_Lock, IE_Pressed, this, &AOsPlayerController::LockStart);
-	// InputComponent->BindAction("FireSimple", IE_Released, this, &AOsPlayerController::LockStart);
 }
 
 
@@ -333,26 +357,6 @@ void AOsPlayerController::RollRight()
 	if (!IsPaused() && bArePlayerActionsAllowed)
 	{
 		OnRoll.Broadcast(true);
-	}
-}
-
-void AOsPlayerController::LockStart()
-{
-	UE_LOG(LogInput, Log, TEXT("LockStart pressed"));
-
-	if (!IsPaused() && bArePlayerActionsAllowed)
-	{
-		// TODO: implement LockStart
-	}
-}
-
-void AOsPlayerController::LockCancel()
-{
-	UE_LOG(LogInput, Log, TEXT("LockCancel pressed"));
-
-	if (!IsPaused() && bArePlayerActionsAllowed)
-	{
-		// TODO: implement LockCancel
 	}
 }
 

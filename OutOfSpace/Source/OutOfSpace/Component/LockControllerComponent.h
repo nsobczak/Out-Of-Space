@@ -14,8 +14,8 @@ class OUTOFSPACE_API ULockControllerComponent : public UActorComponent
 public:
 	ULockControllerComponent();
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-		FActorComponentTickFunction* ThisTickFunction) override;
+	// virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+	// 	FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintPure, Category="Lock")
 	FORCEINLINE TArray<AOsCharacter*> GetLockedCharacters() const { return LockedCharacters; };
@@ -23,10 +23,9 @@ public:
 	bool LockCharacter(AOsCharacter*& osCharacterToLock);
 
 	void ReleaseLock(bool bWasLockCanceled);
-
-
+	
 protected:
-	virtual void BeginPlay() override;
+	// virtual void BeginPlay() override;
 
 	// Max number of characters that can be locked simultaneously
 	UPROPERTY(EditAnywhere, Category="Lock")

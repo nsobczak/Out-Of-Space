@@ -64,7 +64,7 @@ protected:
 	UFUNCTION(Exec, BlueprintCallable, Category = "Cheat")
 	void ToggleInvulnerabilityForPlayer() { bIsInvulnerable = ! bIsInvulnerable; }
 
-	UPROPERTY(VisibleInstanceOnly, Category = "Projectile")
-	AActor* CurrentTarget;
+	// UPROPERTY(VisibleInstanceOnly, Category = "Projectile")
+	// AActor* CurrentTarget;
 	
 };

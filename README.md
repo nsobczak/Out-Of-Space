@@ -24,11 +24,14 @@ You are in space and enemies try to destroy you, you have to make it out!
 - gameplay (navigation, aim/lock, fire, enemy moving)
 - sounds (engine, roll, hit, death)
 - music (menu + gameplay)
-- menus (with version number)
-- world (add meteorite)
-- profile drawings
-- story lines
+- menus
 
 ## bugs
 
 - player is dead, can win if a projectile kills last enemy after death
+
+## extra
+
+- world (add meteorite)
+- profile drawings
+- story lines

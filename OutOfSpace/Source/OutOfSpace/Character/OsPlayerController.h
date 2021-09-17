@@ -77,7 +77,10 @@ protected:
 	float SphereTraceSphereRadius = 1000.f;
 
 	UPROPERTY(EditDefaultsOnly, Category="Projectile")
-	float ScreenDistanceDetectionThreshold = 400.f;
+	float LockCrosshairScreenDistanceThreshold = 400.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Projectile")
+	float LockFireScreenDistanceThreshold = 100.f;
 
 	UPROPERTY(VisibleInstanceOnly, Category="Inputs")
 	bool bArePlayerActionsAllowed = false;
@@ -94,6 +97,8 @@ private:
 
 public:
 	virtual void SetupInputComponent() override;
+
+	bool IsActionButtonHeldDown(const FName ActionNameRef);
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
 	FBasicActionEvent OnMoveForward;
@@ -162,9 +167,6 @@ protected:
 	void RollRight();
 	void Fire();
 	void FireOnLocked();
-
-	void LockStart();
-	void LockCancel();
 	//____________________________________________________________________________
 #pragma endregion
 };

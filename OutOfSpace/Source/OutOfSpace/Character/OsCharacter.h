@@ -8,6 +8,7 @@
 #include "OutOfSpace/Data/ShootingEnums.h"
 #include "OsCharacter.generated.h"
 
+class ULockControllerComponent;
 class UHealthComponent;
 
 UENUM(BlueprintType)
@@ -62,7 +63,7 @@ public:
 
 	// Handles firing projectiles.
 	UFUNCTION()
-	virtual void FireInput() { Fire(EFireType::FT_SIMPLE); };
+	virtual void FireInput();
 	virtual void Fire(EFireType fireType = EFireType::FT_SIMPLE);
 
 	// Performs strafe dash.
@@ -85,6 +86,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = Gameplay)
 	FORCEINLINE UHealthComponent* GetHealthComp() const { return HealthComp; };
 
+	UFUNCTION(BlueprintPure, Category = Gameplay)
+	FORCEINLINE ULockControllerComponent* GetLockController() const { return LockController; };
+
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Events")
 	FBasicEvent OnDeath;
 
@@ -106,13 +110,15 @@ public:
 	FLockEvent OnUnlocked;
 
 protected:
+	virtual void BeginPlay() override;
+
 	// Projectile class to spawn.
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<class AProjectileBase> ProjectileClass;
 
 	// Homing projectile class to spawn.
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
-	TSubclassOf<class AProjectileBase> HomingProjectileClass;
+	TSubclassOf<class AProjectileHoming> HomingProjectileClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	USceneComponent* MuzzleComp;
@@ -123,6 +129,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character")
 	class ULockedWidgetComponent* LockedWidget;
+
+	UPROPERTY(VisibleAnywhere, Category = "Character")
+	ULockControllerComponent* LockController;
 
 	void Kill();
 
@@ -136,10 +145,13 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = "Character")
 	ECharacterState CharacterState = ECharacterState::CS_DEFAULT;
 
+	// Fire basic projectile
 	void FireSimple(FVector MuzzleLocation, FRotator MuzzleRotation, UWorld* World, FActorSpawnParameters SpawnParams);
-	// Handles firing projectiles on locked actors if a LockControllerComponent is equipped.
+	// Fire homing projectiles on locked actors if a LockControllerComponent is equipped.
 	void FireOnLocked(FVector MuzzleLocation, FRotator MuzzleRotation, UWorld* World,
 		FActorSpawnParameters SpawnParams);
+	void SpawnHomingProjectileAndFire(FVector MuzzleLocation, FRotator MuzzleRotation, UWorld* World,
+		FActorSpawnParameters SpawnParams, AActor* HomingTarget);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character|Roll")
 	float RollDuration = .5f;

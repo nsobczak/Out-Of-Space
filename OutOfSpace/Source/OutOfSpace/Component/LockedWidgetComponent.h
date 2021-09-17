@@ -21,4 +21,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	class AOsPlayerCharacter* PlayerCharacter;
+
+	void HandleLockEvent(AActor* LockedBy, bool bIsLocked) { SetHiddenInGame(!bIsLocked); } ;
+	UFUNCTION()
+	void HandleLock(AActor* LockedBy) { HandleLockEvent(LockedBy, true); };
+	UFUNCTION()
+	void HandleUnlock(AActor* LockedBy) { HandleLockEvent(LockedBy, false); };
 };

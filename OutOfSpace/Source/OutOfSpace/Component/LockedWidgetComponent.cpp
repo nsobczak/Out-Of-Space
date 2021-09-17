@@ -3,6 +3,7 @@
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "OutOfSpace/OutOfSpace.h"
 #include "OutOfSpace/Character/OsPlayerCharacter.h"
 
 
@@ -16,6 +17,9 @@ ULockedWidgetComponent::ULockedWidgetComponent()
 	{
 		SetWidgetClass(hudClass.Class);
 	}
+
+	SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SetHiddenInGame(true);
 }
 
 void ULockedWidgetComponent::BeginPlay()
@@ -25,15 +29,21 @@ void ULockedWidgetComponent::BeginPlay()
 	PlayerCharacter = Cast<AOsPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
 	if (!PlayerCharacter)
 	{
-		UE_LOG(LogTemp, Error, TEXT("failed to retrieve PlayerCharacter in ULockedWidgetComponent::BeginPlay"));
+		UE_LOG(LogOoS, Error, TEXT("failed to retrieve PlayerCharacter in ULockedWidgetComponent::BeginPlay"));
 		return;
+	}
+
+	AOsCharacter* attachedOsChara = Cast<AOsCharacter>(GetOwner());
+	if (attachedOsChara)
+	{
+		attachedOsChara->OnLocked.AddUniqueDynamic(this, &ULockedWidgetComponent::HandleLock);
+		attachedOsChara->OnUnlocked.AddUniqueDynamic(this, &ULockedWidgetComponent::HandleUnlock);
 	}
 	else
 	{
-		// TODO: get player and bind visibility on lock event
+		UE_LOG(LogOoS, Warning, TEXT("Failed to cast GetOwner to AOsCharacter"));
 	}
 }
-
 
 void ULockedWidgetComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
