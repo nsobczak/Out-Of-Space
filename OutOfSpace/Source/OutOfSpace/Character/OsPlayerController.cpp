@@ -76,7 +76,7 @@ bool AOsPlayerController::UpdateCrosshairScreenLocation(FVector2D& screenLocatio
 void AOsPlayerController::HandleEnemyDetection()
 {
 	// check if button is down
-	// TODO: add foe to tarray<aactor> targetFoes and currentLockCount++ and (reset timeRemainingBeforeAddingAgain or add to tmap)
+	// add foe to tarray<aactor> targetFoes and currentLockCount++ and (reset timeRemainingBeforeAddingAgain or add to tmap)
 	// if foe is close enough to crosshair and (time remaining in tmap <=0 or tmap does not contains) and currentLockCount < canLockCount
 	// - tmap<aactor foe, float timeRemainingBeforeAddingAgain>
 	// fire to each target on button released, and reset everything
@@ -129,15 +129,13 @@ void AOsPlayerController::HandleEnemyDetection()
 					}
 
 					// Fire lock
-					if (IsActionButtonHeldDown(Action_Fire))
+					if (TimeRemainingBeforeFireLock <= 0)
 					{
 						bool newLockedFireState = FVector2D::DistSquared(CrosshairScreenLocation,
 							characterScreenLocation) < FMath::Square(LockFireScreenDistanceThreshold);
 						if (OsPlayerCharacter->GetLockController())
 						{
-							// TODO: handle adding same actor several times in lock foes array -
-							// - sort function to put what actor should be added in 1st position
-							// - timer to delay enemy addition to array in lock controller
+							// TODO: sort function to put what actor should be added in 1st position
 							OsPlayerCharacter->GetLockController()->LockCharacter(hitOsChar);
 						}
 					}
@@ -161,6 +159,8 @@ void AOsPlayerController::HandleMoveForward()
 void AOsPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	HandleButtonHeldDown(DeltaSeconds);
 
 	HandleEnemyDetection();
 
@@ -365,6 +365,19 @@ void AOsPlayerController::Fire()
 	if (!IsPaused() && bArePlayerActionsAllowed)
 	{
 		OnFire.Broadcast();
+	}
+}
+
+void AOsPlayerController::HandleButtonHeldDown(float DeltaSeconds)
+{
+	if (IsActionButtonHeldDown(Action_Fire))
+	{
+		if (TimeRemainingBeforeFireLock > 0)
+			TimeRemainingBeforeFireLock -= DeltaSeconds;
+	}
+	else
+	{
+		TimeRemainingBeforeFireLock = TimeNeededHoldingFireButtonToStartLocking;
 	}
 }
 

@@ -100,6 +100,8 @@ public:
 
 	bool IsActionButtonHeldDown(const FName ActionNameRef);
 
+	void HandleButtonHeldDown(float DeltaSeconds);
+
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
 	FBasicActionEvent OnMoveForward;
 
@@ -167,6 +169,10 @@ protected:
 	void RollRight();
 	void Fire();
 	void FireOnLocked();
+
+private:
+	const float TimeNeededHoldingFireButtonToStartLocking = .2f;
+	float TimeRemainingBeforeFireLock;
 	//____________________________________________________________________________
 #pragma endregion
 };

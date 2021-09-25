@@ -87,7 +87,7 @@ void AProjectileBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 	// TODO: add team faction correctly to prevent friendly fire
 	AOsCharacter* osCharOther = Cast<AOsCharacter>(OtherActor);
 	AOsCharacter* osCharInstigator = Cast<AOsCharacter>(GetInstigator());
-	if (OtherActor != this && osCharOther && osCharOther != GetInstigator()
+	if (OtherActor != this && osCharOther && osCharOther != GetInstigator() && GetInstigator()
 		&& (!osCharInstigator || osCharOther->GetFaction() != osCharInstigator->GetFaction()))
 	{
 		osCharOther->TakeDamage(DamageValue, FDamageEvent(), GetInstigator()->GetController(), GetInstigator());

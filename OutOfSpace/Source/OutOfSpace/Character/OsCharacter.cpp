@@ -128,10 +128,10 @@ void AOsCharacter::FireOnLocked(FVector MuzzleLocation, FRotator MuzzleRotation,
 		FTimerDelegate timerDelegate;
 		timerDelegate.BindUObject(this, &AOsCharacter::SpawnHomingProjectileAndFire, MuzzleLocation, MuzzleRotation,
 			World, SpawnParams, HomingTarget);
-		GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, 0.05f * i, false);
+		GetWorld()->GetTimerManager().SetTimer(timerHandle, timerDelegate, 0.05f * (i + 1), false);
 	}
 
-	LockController->ReleaseLock(false);
+	LockController->ReleaseLock();
 }
 
 void AOsCharacter::FireInput()
