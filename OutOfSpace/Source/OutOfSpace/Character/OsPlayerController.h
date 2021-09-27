@@ -66,8 +66,6 @@ protected:
 
 	// Detect enemies, update crosshair or not, broadcast if lock state changed, also handles player lock on enemies
 	void HandleEnemyDetection();
-	// Get input keys associated to input actions to check if forward key is held down and if we should move forward
-	void HandleMoveForward();
 
 	// SphereTrace to detect enemies
 	UPROPERTY(EditDefaultsOnly, Category="Projectile")
@@ -103,7 +101,7 @@ public:
 	void HandleButtonHeldDown(float DeltaSeconds);
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
-	FBasicActionEvent OnMoveForward;
+	FBasicActionEvent OnDashForward;
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Inputs")
 	FBasicActionEvent OnStart;
@@ -125,7 +123,7 @@ protected:
 	const FName Axis_LookUp = "LookUp";
 	const FName Axis_LookUpRate = "LookUpRate";
 
-	const FName Action_MoveForward = "MoveForward";
+	const FName Action_DashForward = "DashForward";
 	const FName Action_Start = "Start";
 	const FName Action_Accept = "Accept";
 	const FName Action_Back = "Back";
@@ -135,9 +133,9 @@ protected:
 	const FName Action_Fire = "Fire";
 	// const FName Action_On_Locked = "FireOnLocked";
 	const FName Action_Lock = "Lock";
-
-	/** Called for forwards/backward input */
-	void MoveForward();
+	
+	/** Called for forwards input */
+	void DashForward();
 
 	virtual void AddYawInput(float Val) override;
 
@@ -171,6 +169,8 @@ protected:
 	void FireOnLocked();
 
 private:
+	const float DashSpeed = 5.f;
+	
 	const float TimeNeededHoldingFireButtonToStartLocking = .2f;
 	float TimeRemainingBeforeFireLock;
 	//____________________________________________________________________________

@@ -25,6 +25,7 @@ enum class ECharacterState : uint8
 {
 	CS_DEFAULT UMETA(DisplayName = "Default"),
 	CS_ROLLING UMETA(DisplayName = "Rolling"),
+	CS_DASHING UMETA(DisplayName = "Dashing"),
 	CS_DEAD UMETA(DisplayName = "Dead"),
 	CS_OTHER UMETA(DisplayName = "Other")
 };
@@ -65,6 +66,10 @@ public:
 	UFUNCTION()
 	virtual void FireInput();
 	virtual void Fire(EFireType fireType = EFireType::FT_SIMPLE);
+
+	// Performs forward dash.
+	UFUNCTION()
+	virtual void Dash();
 
 	// Performs strafe dash.
 	UFUNCTION()
@@ -112,6 +117,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Character")
+	bool bAutoMoveForward = false;
+	void AutoMoveForward();
+
 	// Projectile class to spawn.
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<class AProjectileBase> ProjectileClass;
@@ -153,6 +162,27 @@ protected:
 	void SpawnHomingProjectileAndFire(FVector MuzzleLocation, FRotator MuzzleRotation, UWorld* World,
 		FActorSpawnParameters SpawnParams, AActor* HomingTarget);
 
+#pragma region dash
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Character|Roll")
+	float DashDuration = .6f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character|Roll")
+	float DashDistance = 2000.f;
+
+	// Curve to use on dashing
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Roll")
+	UCurveFloat* DashCurve = nullptr;
+
+private:
+	FVector DashStartLocation, DashTargetLocation;
+	float TimeRemainingDashing;
+	UFUNCTION(Category = "Character|Dash")
+	void HandleDash(float DeltaTime);
+#pragma endregion
+
+#pragma region roll
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Character|Roll")
 	float RollDuration = .5f;
 
@@ -168,4 +198,5 @@ private:
 	float TimeRemainingRolling;
 	UFUNCTION(Category = "Character|Roll")
 	void HandleRoll(float DeltaTime);
+#pragma endregion
 };

@@ -72,8 +72,17 @@ void AOsCharacter::Tick(float DeltaTime)
 			HandleRoll(DeltaTime);
 			break;
 		}
+	case ECharacterState::CS_DASHING:
+		{
+			HandleDash(DeltaTime);
+			break;
+		}
 	default:
 		{
+			if (bAutoMoveForward)
+			{
+				AutoMoveForward();
+			}
 			break;
 		}
 	}
@@ -194,6 +203,56 @@ void AOsCharacter::Fire(EFireType fireType)
 
 //____________________________________________________________________________
 #pragma endregion
+
+void AOsCharacter::AutoMoveForward()
+{
+	// TODO: allow z axis direction
+	
+	// find out which way is forward
+	const FRotator Rotation = GetControlRotation();
+	const FRotator YawRotation(Rotation.Pitch, Rotation.Yaw, 0);
+
+	// get forward vector
+	// const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	const FVector Direction = GetActorForwardVector();
+	// const FVector Direction = FVector(0, 0, 1.f);
+	// UE_LOG(LogOoS, Log, TEXT("GetActorForwardVector = %s"), *GetActorForwardVector().ToString());
+
+	AddMovementInput(Direction, 1.f);
+}
+
+void AOsCharacter::Dash()
+{
+	// TODO: add check time between dash threshold
+	if (CharacterState != ECharacterState::CS_DASHING)
+	{
+		TimeRemainingDashing = DashDuration;
+		DashStartLocation = GetActorLocation();
+		DashTargetLocation = DashStartLocation + GetActorForwardVector() * DashDistance;
+		CharacterState = ECharacterState::CS_DASHING;
+	}
+}
+
+void AOsCharacter::HandleDash(float DeltaTime)
+{
+	TimeRemainingDashing -= DeltaTime;
+
+	float alpha = (DashDuration - TimeRemainingDashing) / DashDuration;
+	alpha = FMath::Clamp(alpha, 0.f, 1.f);
+	float curveAlpha = alpha;
+
+	if (DashCurve != nullptr)
+	{
+		curveAlpha = DashCurve->GetFloatValue(alpha);
+	}
+
+	SetActorLocation(FMath::Lerp(DashStartLocation, DashTargetLocation, curveAlpha));
+
+	if (TimeRemainingDashing <= 0)
+	{
+		CharacterState = ECharacterState::CS_DEFAULT;
+	}
+}
 
 void AOsCharacter::Roll(const bool bIsRollRight)
 {

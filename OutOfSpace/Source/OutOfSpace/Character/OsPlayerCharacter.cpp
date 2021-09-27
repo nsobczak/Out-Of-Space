@@ -51,6 +51,8 @@ AOsPlayerCharacter::AOsPlayerCharacter()
 
 	Faction = EFaction::F_PLAYER;
 
+	bAutoMoveForward = true;
+	
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
@@ -66,6 +68,7 @@ void AOsPlayerCharacter::PossessedBy(AController* NewController)
 	if (osPController)
 	{
 		osPController->OnFire.AddUniqueDynamic(this, &AOsPlayerCharacter::FireInput);
+		osPController->OnDashForward.AddUniqueDynamic(this, &AOsPlayerCharacter::Dash);
 		osPController->OnRoll.AddUniqueDynamic(this, &AOsPlayerCharacter::Roll);
 	}
 }
@@ -77,6 +80,8 @@ void AOsPlayerCharacter::UnPossessed()
 	if (AOsPlayerController* osPController = Cast<AOsPlayerController>(CurrentController))
 	{
 		osPController->OnFire.RemoveDynamic(this, &AOsPlayerCharacter::FireInput);
+		osPController->OnDashForward.RemoveDynamic(this, &AOsPlayerCharacter::Dash);
+		osPController->OnRoll.RemoveDynamic(this, &AOsPlayerCharacter::Roll);
 	}
 
 	// CurrentController = nullptr;

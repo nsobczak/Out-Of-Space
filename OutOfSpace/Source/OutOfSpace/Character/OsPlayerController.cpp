@@ -145,26 +145,13 @@ void AOsPlayerController::HandleEnemyDetection()
 	}
 }
 
-void AOsPlayerController::HandleMoveForward()
-{
-	// bool bMoveForward = false;
-
-	if (IsActionButtonHeldDown(Action_MoveForward))
-	{
-		MoveForward();
-		return;
-	}
-}
-
 void AOsPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	HandleButtonHeldDown(DeltaSeconds);
+	HandleButtonHeldDown(DeltaSeconds); // fire lock
 
 	HandleEnemyDetection();
-
-	HandleMoveForward();
 }
 
 void AOsPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -234,8 +221,7 @@ void AOsPlayerController::SetupInputComponent()
 	InputComponent->BindTouch(IE_Released, this, &AOsPlayerController::TouchStopped);
 
 	// Actions
-	// InputComponent->BindAction(Action_MoveForward, IE_Pressed, this, &AOsPlayerController::MoveForward).
-	//                 bExecuteWhenPaused = true;
+	InputComponent->BindAction(Action_DashForward, IE_Pressed, this, &AOsPlayerController::DashForward);
 	InputComponent->BindAction(Action_Start, IE_Released, this, &AOsPlayerController::Start).bExecuteWhenPaused = true;
 	InputComponent->BindAction(Action_Accept, IE_Released, this, &AOsPlayerController::Accept).bExecuteWhenPaused =
 		true;
@@ -303,23 +289,11 @@ void AOsPlayerController::LookUpAtRate(float Rate)
 
 // === actions ===
 
-void AOsPlayerController::MoveForward()
+void AOsPlayerController::DashForward()
 {
-	OnMoveForward.Broadcast();
-
 	if (!IsPaused() && bArePlayerActionsAllowed)
 	{
-		// find out which way is forward
-		const FRotator Rotation = GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
-		if (GetPawn())
-		{
-			GetPawn()->AddMovementInput(Direction, 1.f);
-		}
+		OnDashForward.Broadcast();
 	}
 }
 
