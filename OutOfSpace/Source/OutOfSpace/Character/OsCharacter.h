@@ -164,14 +164,14 @@ protected:
 
 #pragma region dash
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Character|Roll")
+	UPROPERTY(EditDefaultsOnly, Category = "Character|Dash")
 	float DashDuration = .6f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Character|Roll")
+	UPROPERTY(EditDefaultsOnly, Category = "Character|Dash")
 	float DashDistance = 2000.f;
 
 	// Curve to use on dashing
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Roll")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Dash")
 	UCurveFloat* DashCurve = nullptr;
 
 private:

@@ -21,6 +21,7 @@ AOsGameMode::AOsGameMode()
 	else
 	{
 		DefaultPawnClass = AOsCharacter::StaticClass();
+		UE_LOG(LogOoS, Error, TEXT("Failed to retrieve /Game/Character/Player_BP, using AOsCharacter::StaticClass()"));
 	}
 
 	HUDClass = AOsHUD::StaticClass();

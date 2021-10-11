@@ -29,6 +29,7 @@ You are in space and enemies try to destroy you, you have to make it out!
 ## bugs
 
 - player is dead, can win if a projectile kills last enemy after death
+- timeBeforeLockOnSameTarget only working 1st time?
 
 ## extra
 

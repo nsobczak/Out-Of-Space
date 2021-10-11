@@ -47,10 +47,10 @@ private:
 	};
 	
 	// Time between 2 enemy locks
-	const float TimeBetweenLock = 0.2f;
+	const float TimeBetweenLock = 0.5f;
 	float TimeRemainingBlockingLock;
 
-	const float TimeBetweenLockOnSameTarget = 0.4f;
+	const float TimeBetweenLockOnSameTarget = 1.f;
 	// Time remaining for a given character
 	TMap<AOsCharacter*, float> TimeRemainingBlockingLockOnSameTargetMap;
 
