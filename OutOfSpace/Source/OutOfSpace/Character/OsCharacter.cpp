@@ -207,7 +207,7 @@ void AOsCharacter::Fire(EFireType fireType)
 void AOsCharacter::AutoMoveForward()
 {
 	// TODO: allow z axis direction
-	
+
 	// find out which way is forward
 	const FRotator Rotation = GetControlRotation();
 	const FRotator YawRotation(Rotation.Pitch, Rotation.Yaw, 0);
@@ -246,7 +246,8 @@ void AOsCharacter::HandleDash(float DeltaTime)
 		curveAlpha = DashCurve->GetFloatValue(alpha);
 	}
 
-	SetActorLocation(FMath::Lerp(DashStartLocation, DashTargetLocation, curveAlpha));
+	SetActorLocation(FMath::Lerp(DashStartLocation, DashTargetLocation, curveAlpha), true, nullptr,
+		ETeleportType::None);
 
 	if (TimeRemainingDashing <= 0)
 	{
@@ -278,7 +279,8 @@ void AOsCharacter::HandleRoll(float DeltaTime)
 		curveAlpha = RollCurve->GetFloatValue(alpha);
 	}
 
-	SetActorLocation(FMath::Lerp(RollStartLocation, RollTargetLocation, curveAlpha));
+	SetActorLocation(FMath::Lerp(RollStartLocation, RollTargetLocation, curveAlpha), true, nullptr,
+		ETeleportType::None);
 
 	if (TimeRemainingRolling <= 0)
 	{
