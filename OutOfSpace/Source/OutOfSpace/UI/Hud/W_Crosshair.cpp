@@ -22,7 +22,7 @@ void UW_Crosshair::NativeDestruct()
 
 	if (OsPlayerController)
 	{
-		OsPlayerController->OnCrosshairLock.RemoveDynamic(this, &UW_Crosshair::PlayLockAnimation);
+		OsPlayerController->OnCrosshairLock.RemoveDynamic(this, &UW_Crosshair::Lock);
 	}
 }
 

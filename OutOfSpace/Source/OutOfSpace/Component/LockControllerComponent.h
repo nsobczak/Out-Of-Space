@@ -20,16 +20,22 @@ public:
 	UFUNCTION(BlueprintPure, Category="Lock")
 	FORCEINLINE TArray<AOsCharacter*> GetLockedCharacters() const { return LockedCharacters; };
 
+	UFUNCTION(BlueprintPure, Category="Lock")
+	FORCEINLINE int32 GetLockedCharacterCount() const { return LockedCharacters.Num(); };
+
 	bool LockCharacter(AOsCharacter*& osCharacterToLock);
 
 	void ReleaseLock(bool bWasLockCanceled = false);
+
+	UFUNCTION(BlueprintPure, Category="Lock")
+	FORCEINLINE int32 GetLockMaxCount() const { return LockMaxCount; };
 
 protected:
 	// virtual void BeginPlay() override;
 
 	// Max number of characters that can be locked simultaneously
 	UPROPERTY(EditAnywhere, Category="Lock")
-	int32 LockMaxCount = 4;
+	int32 LockMaxCount = 5;
 
 	// OsCharactersCurrently locked
 	UPROPERTY(VisibleInstanceOnly, Category="Lock")
@@ -45,7 +51,7 @@ private:
 	{
 		return TimeRemainingBlockingLock <= 0 && LockedCharacters.Num() < LockMaxCount;
 	};
-	
+
 	// Time between 2 enemy locks
 	const float TimeBetweenLock = 0.5f;
 	float TimeRemainingBlockingLock;
@@ -53,5 +59,4 @@ private:
 	const float TimeBetweenLockOnSameTarget = 1.f;
 	// Time remaining for a given character
 	TMap<AOsCharacter*, float> TimeRemainingBlockingLockOnSameTargetMap;
-
 };
