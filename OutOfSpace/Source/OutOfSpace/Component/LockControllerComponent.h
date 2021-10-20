@@ -6,6 +6,8 @@
 #include "LockControllerComponent.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLockControllerUpdatedEvent);
+
 UCLASS(ClassGroup="LockCharacters", meta=(BlueprintSpawnableComponent, ToolTip="Controller to lock other characters"))
 class OUTOFSPACE_API ULockControllerComponent : public UActorComponent
 {
@@ -30,6 +32,9 @@ public:
 	UFUNCTION(BlueprintPure, Category="Lock")
 	FORCEINLINE int32 GetLockMaxCount() const { return LockMaxCount; };
 
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Lock")
+	FLockControllerUpdatedEvent OnLockedCharactersUpdated;
+
 protected:
 	// virtual void BeginPlay() override;
 
@@ -43,7 +48,7 @@ protected:
 
 	// Whether we can add a given character to the LockedCharacters array
 	UFUNCTION(BlueprintPure, Category="Lock")
-	FORCEINLINE bool CanLockCharacter(AOsCharacter*& osCharacterToLock) const;
+	bool CanLockCharacter(AOsCharacter*& osCharacterToLock) const;
 
 private:
 	// Whether we can add character to the LockedCharacters array

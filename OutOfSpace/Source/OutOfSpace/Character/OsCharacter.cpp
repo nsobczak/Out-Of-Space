@@ -160,7 +160,7 @@ void AOsCharacter::Fire(EFireType fireType)
 {
 	// Attempt to fire a projectile.
 	// TODO: add timer to prevent character from firing too often, right now it is done manually in behavior tree for foes
-
+	// TODO: add camera shake on fire
 
 	// Get the camera transform.
 	FVector CameraLocation;

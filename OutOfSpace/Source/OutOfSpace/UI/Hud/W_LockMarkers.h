@@ -59,6 +59,8 @@ public:
 
 protected:
 	class AOsPlayerController* OsPlayerController;
+	class AOsPlayerCharacter* OsPlayer;
+	class ULockControllerComponent* LockControllerComp;
 
 	void PlayLockAnimation(bool const bReverse = false);
 
@@ -66,13 +68,17 @@ protected:
 	TSubclassOf<UUserWidget> MarkerWidgetClass;
 
 	UPROPERTY(EditAnywhere, Category="LockMarkers")
-	float RadiusWhenLocked = 50.f;
+	float RadiusWhenLocked = 25.f;
 	UPROPERTY(EditAnywhere, Category="LockMarkers")
 	float RadiusWhenUnlocked = 200.f;
 
 	// Curve for current value to reach target value
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LockMarkers|Animation")
 	UCurveFloat* LerpAnimationCurve = nullptr;
+
+	// Show and hide markers
+	UFUNCTION(Category="LockMarkers")
+	void UpdateDisplay();
 
 private:
 	UPROPERTY(VisibleInstanceOnly, Category="LockMarkers|Debug")

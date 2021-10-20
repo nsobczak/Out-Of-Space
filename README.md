@@ -8,10 +8,9 @@ You are in space and enemies try to destroy you, you have to make it out!
 
 |Action|Gamepad|Keyboard|
 |---|---|---|
-|Move forward|A|W/Spacebar|
+|Speed up|A|W/Spacebar|
 |Roll left|Q|LB|
 |Roll right|E|RB|
-|Look direction|Left stick|Mouse|
 |Fire|Trigger/X|Left mouse button/F|
 |Aim|Right stick|Mouse|
 |Pause|Start|Escape|

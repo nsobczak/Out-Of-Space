@@ -72,7 +72,7 @@ protected:
 	float SphereTraceLengthDetection = 14000.f;
 	// SphereTrace to detect enemies
 	UPROPERTY(EditDefaultsOnly, Category="Projectile")
-	float SphereTraceSphereRadius = 1000.f;
+	float SphereTraceSphereRadius = 1100.f;
 
 	UPROPERTY(EditDefaultsOnly, Category="Projectile")
 	float LockCrosshairScreenDistanceThreshold = 400.f;

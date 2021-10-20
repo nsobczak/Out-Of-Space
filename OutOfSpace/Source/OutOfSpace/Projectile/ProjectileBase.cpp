@@ -47,7 +47,7 @@ AProjectileBase::AProjectileBase()
 		}
 	}
 
-	static ConstructorHelpers::FObjectFinder<UMaterial> Material(TEXT("/Game/Projectile/M_Tech_Hex_Tile_Pulse"));
+	static ConstructorHelpers::FObjectFinder<UMaterial> Material(TEXT("/Game/Projectile/M_Rock"));
 	if (Material.Succeeded())
 	{
 		ProjectileMaterialInstance = UMaterialInstanceDynamic::Create(Material.Object, ProjectileMeshComponent);

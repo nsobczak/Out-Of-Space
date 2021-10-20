@@ -8,8 +8,6 @@
 #include "UObject/ConstructorHelpers.h"
 
 
-// TODO: update number of markers displayed to match foes in lock controller
-
 UW_LockMarkers::UW_LockMarkers(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
 	if (!MarkerWidgetClass)
@@ -40,6 +38,17 @@ void UW_LockMarkers::NativeConstruct()
 	if (OsPlayerController)
 	{
 		OsPlayerController->OnCrosshairLock.AddUniqueDynamic(this, &UW_LockMarkers::Lock);
+	}
+
+	OsPlayer = Cast<AOsPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	if (OsPlayer)
+	{
+		LockControllerComp = Cast<ULockControllerComponent>(
+			OsPlayer->GetComponentByClass(ULockControllerComponent::StaticClass()));
+		if (LockControllerComp)
+		{
+			LockControllerComp->OnLockedCharactersUpdated.AddUniqueDynamic(this, &UW_LockMarkers::UpdateDisplay);
+		}
 	}
 
 	UpdateMarkerCount();
@@ -91,6 +100,11 @@ void UW_LockMarkers::NativeDestruct()
 	{
 		OsPlayerController->OnCrosshairLock.RemoveDynamic(this, &UW_LockMarkers::Lock);
 	}
+
+	if (LockControllerComp)
+	{
+		LockControllerComp->OnLockedCharactersUpdated.RemoveDynamic(this, &UW_LockMarkers::UpdateDisplay);
+	}
 }
 
 void UW_LockMarkers::DestroyMarkers()
@@ -110,11 +124,10 @@ void UW_LockMarkers::DestroyMarkers()
 
 void UW_LockMarkers::UpdateMarkerCount()
 {
-	AOsPlayerCharacter* player = Cast<AOsPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
-	if (player)
+	if (OsPlayer)
 	{
 		ULockControllerComponent* lockController = Cast<ULockControllerComponent>(
-			player->GetComponentByClass(ULockControllerComponent::StaticClass()));
+			OsPlayer->GetComponentByClass(ULockControllerComponent::StaticClass()));
 		if (lockController)
 		{
 			DestroyMarkers();
@@ -157,7 +170,7 @@ void UW_LockMarkers::PlayLockAnimation(bool const bReverse)
 {
 	// TODO: handle case where we cancel animation by reversing it
 
-	if (bIsLocked && !bReverse)
+	if (!bIsLocked && bReverse)
 	{
 		// to exterior
 		for (int i = 0; i < Markers.Num(); ++i)
@@ -166,7 +179,7 @@ void UW_LockMarkers::PlayLockAnimation(bool const bReverse)
 			Markers[i].TargetLerpRelativeLocation = Markers[i].UnlockedLocation;
 		}
 	}
-	else if (!bIsLocked && bReverse)
+	else if (bIsLocked && !bReverse)
 	{
 		// to center
 		for (int i = 0; i < Markers.Num(); ++i)
@@ -177,4 +190,23 @@ void UW_LockMarkers::PlayLockAnimation(bool const bReverse)
 	}
 
 	TimeRemainingLerping = TimeToLerp;
+}
+
+void UW_LockMarkers::UpdateDisplay()
+{
+	if (LockControllerComp)
+	{
+		int32 visibleMarkerCount = LockControllerComp->GetLockMaxCount() - LockControllerComp->
+			GetLockedCharacterCount();
+
+		for (int i = 0; i < Markers.Num(); ++i)
+		{
+			if (Markers[i].Marker)
+			{
+				bool bIsVisible = i < LockControllerComp->GetLockMaxCount() - LockControllerComp->
+					GetLockedCharacterCount();
+				Markers[i].Marker->SetVisibility(bIsVisible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+			}
+		}
+	}
 }

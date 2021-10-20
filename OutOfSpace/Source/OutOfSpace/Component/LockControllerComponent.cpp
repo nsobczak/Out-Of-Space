@@ -65,6 +65,7 @@ bool ULockControllerComponent::LockCharacter(AOsCharacter*& osCharacterToLock)
 
 		TimeRemainingBlockingLock = TimeBetweenLock;
 		TimeRemainingBlockingLockOnSameTargetMap.FindOrAdd(osCharacterToLock, TimeBetweenLockOnSameTarget);
+		OnLockedCharactersUpdated.Broadcast();
 
 		bSuccess = true;
 	}
@@ -84,6 +85,7 @@ void ULockControllerComponent::ReleaseLock(bool bWasLockCanceled)
 	}
 
 	LockedCharacters.Reset();
+	OnLockedCharactersUpdated.Broadcast();
 	TimeRemainingBlockingLock = 0;
 
 	TimeRemainingBlockingLockOnSameTargetMap.Reset();
