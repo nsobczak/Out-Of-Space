@@ -55,8 +55,11 @@ public:
 
 
 protected:
+	UPROPERTY(Transient)
 	class AOsGameMode* OsGameMode;
+	UPROPERTY(Transient)
 	class AOsPlayerCharacter* OsPlayerCharacter;
+	UPROPERTY(Transient)
 	class AOsWorldSettings* OsWorldSettings;
 
 	FVector2D CrosshairScreenLocation;
@@ -172,6 +175,7 @@ private:
 	const float DashSpeed = 5.f;
 	
 	const float TimeNeededHoldingFireButtonToStartLocking = .2f;
+	UPROPERTY(Transient)
 	float TimeRemainingBeforeFireLock;
 	//____________________________________________________________________________
 #pragma endregion

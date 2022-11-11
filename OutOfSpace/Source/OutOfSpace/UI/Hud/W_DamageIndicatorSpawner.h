@@ -28,6 +28,7 @@ public:
 	float EltLifeTime = 3.f;
 
 protected:
+	UPROPERTY(Transient)
 	class AOsPlayerCharacter* OsPlayerCharacter;
 
 	UFUNCTION()

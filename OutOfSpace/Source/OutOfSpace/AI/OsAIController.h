@@ -29,6 +29,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category="AI Controller")
 	bool bDebug = false;
 
-	UPROPERTY(VisibleInstanceOnly, Category = "AI Controller", AdvancedDisplay)
+	UPROPERTY(VisibleInstanceOnly, Category = "AI Controller", AdvancedDisplay, Transient)
 	AOsCharacter* PossessedOsCharacter;
 };

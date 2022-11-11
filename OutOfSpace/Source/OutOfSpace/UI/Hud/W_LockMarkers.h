@@ -81,13 +81,14 @@ protected:
 	void UpdateDisplay();
 
 private:
-	UPROPERTY(VisibleInstanceOnly, Category="LockMarkers|Debug")
+	UPROPERTY(VisibleInstanceOnly, Category="LockMarkers|Debug", Transient)
 	TArray<FLockMarker> Markers;
 
-	UPROPERTY(VisibleInstanceOnly, Category="LockMarkers|Debug")
+	UPROPERTY(VisibleInstanceOnly, Category="LockMarkers|Debug", Transient)
 	bool bIsLocked = false;
 
 	UPROPERTY(EditAnywhere, Category="LockMarkers|Animation")
 	float TimeToLerp = 0.4f;
+	UPROPERTY(Transient)
 	float TimeRemainingLerping;
 };

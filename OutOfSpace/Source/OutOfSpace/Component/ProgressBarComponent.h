@@ -44,14 +44,15 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Set to MaxValue on begin play
-	UPROPERTY(VisibleInstanceOnly, Category = "ProgressBar|Debug")
+	UPROPERTY(VisibleInstanceOnly, Category = "ProgressBar|Debug", Transient)
 	float CurrentValue = 1.f;
 
 	// Set to MaxValue on begin play
-	UPROPERTY(VisibleInstanceOnly, Category = "ProgressBar|Debug")
+	UPROPERTY(VisibleInstanceOnly, Category = "ProgressBar|Debug", Transient)
 	float TargetValue = 1.f;
 
 	// Time to remaining for current value to reach target value
+	UPROPERTY(Transient)
 	float TimeRemainingToReachTarget;
 
 	// Time CurrentValue will spend updating to reach TargetValue
@@ -74,6 +75,6 @@ protected:
 
 private:
 	// Set to MaxValue on begin play
-	UPROPERTY(VisibleInstanceOnly, Category = "ProgressBar|Debug")
+	UPROPERTY(VisibleInstanceOnly, Category = "ProgressBar|Debug", Transient)
 	float LastValue = 1.f;
 };

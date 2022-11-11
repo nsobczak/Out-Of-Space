@@ -43,7 +43,7 @@ protected:
 	int32 LockMaxCount = 5;
 
 	// OsCharactersCurrently locked
-	UPROPERTY(VisibleInstanceOnly, Category="Lock")
+	UPROPERTY(VisibleInstanceOnly, Category="Lock", Transient)
 	TArray<AOsCharacter*> LockedCharacters;
 
 	// Whether we can add a given character to the LockedCharacters array
@@ -59,9 +59,11 @@ private:
 
 	// Time between 2 enemy locks
 	const float TimeBetweenLock = 0.5f;
+	UPROPERTY(Transient)
 	float TimeRemainingBlockingLock;
 
 	const float TimeBetweenLockOnSameTarget = 1.f;
 	// Time remaining for a given character
+	UPROPERTY(Transient)
 	TMap<AOsCharacter*, float> TimeRemainingBlockingLockOnSameTargetMap;
 };

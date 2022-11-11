@@ -42,7 +42,9 @@ public:
 	FORCEINLINE EGameResult GetGameResult() const { return GameResult; };
 
 protected:
+	UPROPERTY(Transient)
 	class AOsPlayerController* OsPlayerController;
+	UPROPERTY(Transient)
 	class AOsCharacter* OsCharacter;
 
 	UFUNCTION()

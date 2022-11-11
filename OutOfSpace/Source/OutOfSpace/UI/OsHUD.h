@@ -45,7 +45,7 @@ protected:
 	void HandleGamePaused(bool const bIsPaused);
 
 private:
-	UPROPERTY()
+	UPROPERTY(Transient)
 	APlayerController* PlayerController;
 
 #pragma region Widget
@@ -54,38 +54,38 @@ public:
 	void ShowCursor(bool showCursor);
 
 	/** The widget instance that we are using. */
-	UFUNCTION(BlueprintPure, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
+	UFUNCTION(BlueprintPure, Category = "Widget_Functions")
 	FORCEINLINE UUserWidget* GetCurrentWidget() { return CurrentWidget; }
 
-	UFUNCTION(BlueprintPure, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
+	UFUNCTION(BlueprintPure, Category = "Widget_Functions")
 	FORCEINLINE TSubclassOf<UUserWidget> GetCurrentWidgetClass() { return CurrentWidgetClass; }
 
 	/** Remove the current menu widget (if not null) and create a new one from the specified class, if provided. Show cursor if true.*/
-	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
+	UFUNCTION(BlueprintCallable, Category = "Widget_Functions")
 	UUserWidget* ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetClass, bool showCursor = false);
 
-	UFUNCTION(BlueprintPure, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
+	UFUNCTION(BlueprintPure, Category = "Widget_Functions")
 	bool IsShowingWidget(EHudWidget widgetToLookFor);
 
-	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
+	UFUNCTION(BlueprintCallable, Category = "Widget_Functions")
 	void ShowWidget(TSubclassOf<UUserWidget> NewWidgetClass, bool showCursor = false);
 
-	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
+	UFUNCTION(BlueprintCallable, Category = "Widget_Functions")
 	void ShowHUDWidget(bool showCursor = false);
 
-	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
+	UFUNCTION(BlueprintCallable, Category = "Widget_Functions")
 	void ShowStartingWidget(bool showCursor = true);
 
-	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
+	UFUNCTION(BlueprintCallable, Category = "Widget_Functions")
 	void ShowEndingWidget(bool showCursor = true);
 
-	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
+	UFUNCTION(BlueprintCallable, Category = "Widget_Functions")
 	void ShowPauseWidget(bool showCursor = true);
 
-	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
+	UFUNCTION(BlueprintCallable, Category = "Widget_Functions")
 	void HideWidget(UUserWidget* widgetToHide, bool showCursor = false);
 
-	UFUNCTION(BlueprintCallable, Category = "Widget_Functions", Meta = (BlueprintProtected = "true"))
+	UFUNCTION(BlueprintCallable, Category = "Widget_Functions")
 	void HideCurrentWidget(bool showCursor = false);
 
 protected:
@@ -110,7 +110,7 @@ protected:
 	TSubclassOf<UUserWidget> EndingWidgetClass;
 
 	/** The widget instance that we are using as our menu. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Widgets")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Widgets", Transient)
 	UUserWidget* CurrentWidget;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Widgets")

@@ -43,6 +43,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	UPROPERTY(Transient)
 	AController* CurrentController;
 
 	// Aiming point to get location of crosshair

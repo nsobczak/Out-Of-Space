@@ -20,6 +20,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(Transient)
 	class AOsPlayerCharacter* PlayerCharacter;
 
 	void HandleLockEvent(AActor* LockedBy, bool bIsLocked) { SetHiddenInGame(!bIsLocked); } ;

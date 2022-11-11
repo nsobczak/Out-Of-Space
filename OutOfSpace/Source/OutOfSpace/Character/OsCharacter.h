@@ -195,6 +195,7 @@ protected:
 
 private:
 	FVector RollStartLocation, RollTargetLocation;
+	UPROPERTY(Transient)
 	float TimeRemainingRolling;
 	UFUNCTION(Category = "Character|Roll")
 	void HandleRoll(float DeltaTime);

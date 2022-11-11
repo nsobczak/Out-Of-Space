@@ -20,9 +20,10 @@ public:
 	void Lock(bool const bLock = true);
 
 protected:
+	UPROPERTY(Transient)
 	class AOsPlayerController* OsPlayerController;
 
-	UPROPERTY(VisibleInstanceOnly, Category="Crosshair")
+	UPROPERTY(VisibleInstanceOnly, Category="Crosshair", Transient)
 	bool bIsLocked = false;
 
 	void PlayLockAnimation(bool const bReverse = false);

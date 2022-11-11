@@ -33,7 +33,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category="DamageIndicator")
 	float LifeTime = 3.f;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="DamageIndicator")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="DamageIndicator", Transient)
 	float LifeTimeRemaining;
 
 	float IndicatorOpacity = 1.f;
@@ -45,5 +45,6 @@ protected:
 	void UpdateOpacity();
 
 private:
+	UPROPERTY(Transient)
 	FVector DamageCauserLastLocation;
 };
