@@ -15,7 +15,7 @@ You are in space and enemies try to destroy you, you have to make it out!
 |Aim|Right stick|Mouse|
 |Pause|Start|Escape|
 
-![Screen](Screenshots/Screen_02.PNG)
+![Screen](Screenshots/Screen_06.PNG)
 
 ## Parts
 
