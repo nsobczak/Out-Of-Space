@@ -21,9 +21,8 @@ bool UBTDecorator_IsTargetNear::CalculateRawConditionValue(UBehaviorTreeComponen
 	UBlackboardComponent* bb = OwnerComp.GetBlackboardComponent();
 	if (!bb)
 	{
-		UE_LOG(LogTemp, Warning,
-		       TEXT( "failed to retrive UBlackboardComponent in UBTDecorator_IsTargetNear::CalculateRawConditionValue"
-		       ));
+		UE_LOG(LogOoS, Warning,
+			TEXT( "failed to retrieve UBlackboardComponent in UBTDecorator_IsTargetNear::CalculateRawConditionValue" ));
 		return false;
 	}
 
@@ -31,7 +30,7 @@ bool UBTDecorator_IsTargetNear::CalculateRawConditionValue(UBehaviorTreeComponen
 	bb->SetValueAsObject(BlackboardKey_Target.SelectedKeyName, player);
 
 	return bb->GetValueAsObject(BlackboardKey_Target.SelectedKeyName)
-		       ? (FVector::DistSquared(player->GetActorLocation(), OwnerComp.GetOwner()->GetActorLocation()) <
-			       FMath::Square(DetectionDistance))
-		       : false;
+		? (FVector::DistSquared(player->GetActorLocation(), OwnerComp.GetOwner()->GetActorLocation()) <
+			FMath::Square(DetectionDistance))
+		: false;
 }

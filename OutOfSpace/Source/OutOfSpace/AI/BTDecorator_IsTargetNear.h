@@ -37,6 +37,6 @@ protected:
 	FBlackboardKeySelector BlackboardKey_Target;
 
 	// TODO: move DetectionDistance into character or controller
-	UPROPERTY(VisibleAnywhere)
-	float DetectionDistance = 8500.f;
+	UPROPERTY(EditAnywhere, Category=Movement)
+	float DetectionDistance = 7500.f;
 };

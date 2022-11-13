@@ -41,7 +41,7 @@ EBTNodeResult::Type UBTTask_Fire::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	UBlackboardComponent* bb = OwnerComp.GetBlackboardComponent();
 	if (!bb)
 	{
-		UE_LOG(LogTemp, Warning, TEXT( "failed to retrive UBlackboardComponent in UBTTask_Fire::ExecuteTask" ));
+		UE_LOG(LogOoS, Warning, TEXT( "failed to retrive UBlackboardComponent in UBTTask_Fire::ExecuteTask" ));
 		return EBTNodeResult::Failed;
 	}
 
@@ -49,7 +49,7 @@ EBTNodeResult::Type UBTTask_Fire::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	AActor* targetObject = Cast<AActor>(bb->GetValueAsObject(BlackboardKey_Target.SelectedKeyName));
 	if (!targetObject)
 	{
-		UE_LOG(LogTemp, Error, TEXT("targetObject is null"));
+		UE_LOG(LogOoS, Error, TEXT("targetObject is null"));
 		return EBTNodeResult::Failed;
 	}
 	

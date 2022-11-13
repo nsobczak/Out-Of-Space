@@ -113,7 +113,6 @@
 	"TargetPlatforms": [
 		"Linux",
 		"LinuxAArch64",
-		"Windows",
-		"Android"
+		"Windows"
 	]
 }
